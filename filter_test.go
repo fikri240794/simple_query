@@ -699,7 +699,7 @@ func TestFilter_validate(t *testing.T) {
 			Expectation: errors.New("operator is not empty"),
 		},
 		{
-			Name: "logic is not empty and value is not nil and value kind is allowed",
+			Name: "logic is not empty and value is not nil or value kind is allowed",
 			Filter: &Filter{
 				Logic: FilterLogicAnd,
 				Value: "value1",
@@ -798,13 +798,13 @@ func TestFilter_validate(t *testing.T) {
 			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Array.String(), FilterOperatorEqual),
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not allowed", FilterOperatorIn),
+			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not %s and %s", FilterOperatorIn, reflect.Slice.String(), reflect.Array.String()),
 			Filter: &Filter{
 				Field:    "field1",
 				Operator: FilterOperatorIn,
-				Value:    map[string]string{"key1": "value1"},
+				Value:    int64(123),
 			},
-			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Map.String(), FilterOperatorIn),
+			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Int64.String(), FilterOperatorIn),
 		},
 		{
 			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value length is zero", FilterOperatorIn),
@@ -847,9 +847,9 @@ func TestFilter_validate(t *testing.T) {
 			Filter: &Filter{
 				Field:    "field1",
 				Operator: FilterOperatorNotIn,
-				Value:    map[string]string{"key1": "value1"},
+				Value:    int64(123),
 			},
-			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Map.String(), FilterOperatorNotIn),
+			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Int64.String(), FilterOperatorNotIn),
 		},
 		{
 			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value length is zero", FilterOperatorNotIn),
@@ -906,15 +906,6 @@ func TestFilter_validate(t *testing.T) {
 			Expectation: fmt.Errorf("unsupported %s type of value for operator %s", reflect.Int64.String(), FilterOperatorNotLike),
 		},
 		{
-			Name: "subfilter is valid",
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorEqual,
-				Value:    int64(123),
-			},
-			Expectation: nil,
-		},
-		{
 			Name: "filter is valid",
 			Filter: &Filter{
 				Logic: FilterLogicAnd,
@@ -932,6 +923,25 @@ func TestFilter_validate(t *testing.T) {
 				},
 			},
 			Expectation: nil,
+		},
+		{
+			Name: "filter is invalid",
+			Filter: &Filter{
+				Logic: FilterLogicAnd,
+				Filters: []*Filter{
+					{
+						Field:    "field1",
+						Operator: FilterOperatorEqual,
+						Value:    int64(123),
+					},
+					{
+						Field:    "field2",
+						Operator: FilterOperatorEqual,
+						Value:    []string{"a", "b", "c"},
+					},
+				},
+			},
+			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Slice.String(), FilterOperatorEqual),
 		},
 	}
 
@@ -1855,6 +1865,79 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				ConditionQuery: "",
 				Args:           []interface{}{},
 				Error:          nil,
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with element filters is nil", DialectMySQL),
+			Filter: &Filter{
+				Logic: FilterLogicAnd,
+				Filters: []*Filter{
+					nil,
+					nil,
+					nil,
+				},
+			},
+			Dialect: DialectMySQL,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				ConditionQuery string
+				Args           []interface{}
+				Error          error
+			}{
+				ConditionQuery: "",
+				Args:           []interface{}{},
+				Error:          nil,
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with element filters is invalid", DialectMySQL),
+			Filter: &Filter{
+				Logic: FilterLogicAnd,
+				Filters: []*Filter{
+					{
+						Field:    "field1",
+						Operator: FilterOperatorIn,
+						Value:    "value1",
+					},
+				},
+			},
+			Dialect: DialectMySQL,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				ConditionQuery string
+				Args           []interface{}
+				Error          error
+			}{
+				ConditionQuery: "",
+				Args:           []interface{}{},
+				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.String.String(), FilterOperatorIn),
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with element values of element filters is invalid", DialectMySQL),
+			Filter: &Filter{
+				Logic: FilterLogicAnd,
+				Filters: []*Filter{
+					{
+						Field:    "field1",
+						Operator: FilterOperatorNotIn,
+						Value:    [][]string{{"a", "b", "c"}},
+					},
+				},
+			},
+			Dialect: DialectMySQL,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				ConditionQuery string
+				Args           []interface{}
+				Error          error
+			}{
+				ConditionQuery: "",
+				Args:           []interface{}{},
+				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorNotIn),
 			},
 		},
 		{
@@ -2783,6 +2866,79 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			},
 		},
 		{
+			Name: fmt.Sprintf("dialect %s with element filters is nil", DialectPostgres),
+			Filter: &Filter{
+				Logic: FilterLogicAnd,
+				Filters: []*Filter{
+					nil,
+					nil,
+					nil,
+				},
+			},
+			Dialect: DialectPostgres,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				ConditionQuery string
+				Args           []interface{}
+				Error          error
+			}{
+				ConditionQuery: "",
+				Args:           []interface{}{},
+				Error:          nil,
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with element filters is invalid", DialectPostgres),
+			Filter: &Filter{
+				Logic: FilterLogicAnd,
+				Filters: []*Filter{
+					{
+						Field:    "field1",
+						Operator: FilterOperatorIn,
+						Value:    "value1",
+					},
+				},
+			},
+			Dialect: DialectPostgres,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				ConditionQuery string
+				Args           []interface{}
+				Error          error
+			}{
+				ConditionQuery: "",
+				Args:           []interface{}{},
+				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.String.String(), FilterOperatorIn),
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with element values of element filters is invalid", DialectPostgres),
+			Filter: &Filter{
+				Logic: FilterLogicAnd,
+				Filters: []*Filter{
+					{
+						Field:    "field1",
+						Operator: FilterOperatorNotIn,
+						Value:    [][]string{{"a", "b", "c"}},
+					},
+				},
+			},
+			Dialect: DialectPostgres,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				ConditionQuery string
+				Args           []interface{}
+				Error          error
+			}{
+				ConditionQuery: "",
+				Args:           []interface{}{},
+				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorNotIn),
+			},
+		},
+		{
 			Name: fmt.Sprintf("dialect %s and args length greater than zero", DialectPostgres),
 			Filter: &Filter{
 				Logic: FilterLogicAnd,
@@ -3019,220 +3175,18 @@ func TestFilter_ToSQLWithArgs(t *testing.T) {
 		}
 	}{
 		{
-			Name: "logic is not empty and field is not empty",
+			Name: "invalid validation",
 			Filter: &Filter{
 				Logic: FilterLogicAnd,
-				Field: "field1",
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("field is not empty"),
-			},
-		},
-		{
-			Name: "logic is not empty and operator is not empty",
-			Filter: &Filter{
-				Logic:    FilterLogicOr,
-				Operator: FilterOperatorEqual,
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("operator is not empty"),
-			},
-		},
-		{
-			Name: "logic is not empty and value is not nil and value kind is allowed",
-			Filter: &Filter{
-				Logic: FilterLogicAnd,
-				Value: "value1",
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("value is not empty"),
-			},
-		},
-		{
-			Name: "logic is not empty and filters length is zero",
-			Filter: &Filter{
-				Logic:   FilterLogicAnd,
-				Filters: []*Filter{},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("filters is required"),
-			},
-		},
-		{
-			Name: "logic is empty and filters length greater than zero",
-			Filter: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
 						Operator: FilterOperatorEqual,
-						Value:    "value1",
+						Value:    []string{"a", "b", "c"},
 					},
 				},
 			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("logic is required"),
-			},
-		},
-		{
-			Name: "logic is empty and filters length is zero and field is empty",
-			Filter: &Filter{
-				Operator: FilterOperatorEqual,
-				Value:    "valu1",
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("field is required"),
-			},
-		},
-		{
-			Name: "logic is empty and filters length is zero and operator is empty",
-			Filter: &Filter{
-				Field: "field1",
-				Value: "value1",
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("operator is required"),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value is nil", FilterOperatorIsNull, FilterOperatorIsNotNull),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorEqual,
-				Value:    nil,
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("value is required"),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value kind is not allowed", FilterOperatorIsNull, FilterOperatorIsNotNull),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorEqual,
-				Value:    map[string]string{"key1": "value1"},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.Map.String(), FilterOperatorEqual),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value is not nil", FilterOperatorIsNull),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIsNull,
-				Value:    "value1",
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("value is not empty"),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value is not nil", FilterOperatorIsNotNull),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIsNotNull,
-				Value:    "value1",
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("value is not empty"),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value kind is %s", FilterOperatorIn, FilterOperatorNotIn, reflect.Slice.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorEqual,
-				Value:    []int64{1, 2, 3},
-			},
-			Dialect: "",
+			Dialect: DialectMySQL,
 			Args:    []interface{}{},
 			Expectation: struct {
 				ConditionQuery string
@@ -3245,254 +3199,7 @@ func TestFilter_ToSQLWithArgs(t *testing.T) {
 			},
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value kind is %s", FilterOperatorIn, FilterOperatorNotIn, reflect.Array.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorEqual,
-				Value:    [3]string{"value1", "value2", "value3"},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.Array.String(), FilterOperatorEqual),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not allowed", FilterOperatorIn),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    map[string]string{"key1": "value1"},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.Map.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value length is zero", FilterOperatorIn),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    []int64{},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("value is required"),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is not allowed", FilterOperatorIn),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    []map[string]string{{"key1": "value1"}},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Map.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is %s", FilterOperatorIn, reflect.Slice.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    [][]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is %s", FilterOperatorIn, reflect.Array.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    [][3]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Array.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not allowed", FilterOperatorNotIn),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    map[string]string{"key1": "value1"},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.Map.String(), FilterOperatorNotIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value length is zero", FilterOperatorNotIn),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    []int64{},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("value is required"),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is not allowed", FilterOperatorNotIn),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    []map[string]string{{"key1": "value1"}},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Map.String(), FilterOperatorNotIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is %s", FilterOperatorNotIn, reflect.Slice.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    [][]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorNotIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is %s", FilterOperatorNotIn, reflect.Array.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    [][3]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Array.String(), FilterOperatorNotIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not %s", FilterOperatorLike, reflect.String.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorLike,
-				Value:    int64(123),
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of value for operator %s", reflect.Int64.String(), FilterOperatorLike),
-			},
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not %s", FilterOperatorNotLike, reflect.String.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotLike,
-				Value:    int64(123),
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of value for operator %s", reflect.Int64.String(), FilterOperatorNotLike),
-			},
-		},
-		{
-			Name: "dialect is empty",
+			Name: "filter is valid",
 			Filter: &Filter{
 				Logic: FilterLogicAnd,
 				Filters: []*Filter{
@@ -3500,50 +3207,6 @@ func TestFilter_ToSQLWithArgs(t *testing.T) {
 						Field:    "field1",
 						Operator: FilterOperatorEqual,
 						Value:    "value1",
-					},
-				},
-			},
-			Dialect: "",
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          errors.New("dialect is required"),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s", DialectMySQL),
-			Filter: &Filter{
-				Logic: FilterLogicAnd,
-				Filters: []*Filter{
-					{
-						Field:    "field1",
-						Operator: FilterOperatorEqual,
-						Value:    "value1",
-					},
-					{
-						Logic: FilterLogicOr,
-						Filters: []*Filter{
-							{
-								Field:    "field2",
-								Operator: FilterOperatorIsNull,
-								Value:    nil,
-							},
-							{
-								Field:    "field3",
-								Operator: FilterOperatorIn,
-								Value:    []int64{1, 2, 3},
-							},
-						},
-					},
-					{
-						Field:    "field4",
-						Operator: FilterOperatorLike,
-						Value:    "value4",
 					},
 				},
 			},
@@ -3554,189 +3217,9 @@ func TestFilter_ToSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf(
-					"field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s",
-					filterOperatorMap[FilterOperatorEqual],
-					placeholderMap[DialectMySQL],
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
-					fmt.Sprintf("(%s, %s, %s)", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorLike],
-					fmt.Sprintf("concat('%%', %s, '%%')", placeholderMap[DialectMySQL]),
-				),
-				Args:  []interface{}{"value1", 1, 2, 3, "value4"},
-				Error: nil,
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero", DialectMySQL),
-			Filter: &Filter{
-				Logic: FilterLogicAnd,
-				Filters: []*Filter{
-					{
-						Field:    "field1",
-						Operator: FilterOperatorEqual,
-						Value:    "value1",
-					},
-					{
-						Logic: FilterLogicOr,
-						Filters: []*Filter{
-							{
-								Field:    "field2",
-								Operator: FilterOperatorIsNull,
-								Value:    nil,
-							},
-							{
-								Field:    "field3",
-								Operator: FilterOperatorIn,
-								Value:    []int64{1, 2, 3},
-							},
-						},
-					},
-					{
-						Field:    "field4",
-						Operator: FilterOperatorLike,
-						Value:    "value4",
-					},
-				},
-			},
-			Dialect: DialectMySQL,
-			Args:    []interface{}{"other args value"},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: fmt.Sprintf(
-					"field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s",
-					filterOperatorMap[FilterOperatorEqual],
-					placeholderMap[DialectMySQL],
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
-					fmt.Sprintf("(%s, %s, %s)", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorLike],
-					fmt.Sprintf("concat('%%', %s, '%%')", placeholderMap[DialectMySQL]),
-				),
-				Args:  []interface{}{"other args value", "value1", 1, 2, 3, "value4"},
-				Error: nil,
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with isRoot is true", DialectPostgres),
-			Filter: &Filter{
-				Logic: FilterLogicAnd,
-				Filters: []*Filter{
-					{
-						Field:    "field1",
-						Operator: FilterOperatorEqual,
-						Value:    "value1",
-					},
-					{
-						Logic: FilterLogicOr,
-						Filters: []*Filter{
-							{
-								Field:    "field2",
-								Operator: FilterOperatorIsNull,
-								Value:    nil,
-							},
-							{
-								Field:    "field3",
-								Operator: FilterOperatorIn,
-								Value:    []int64{1, 2, 3},
-							},
-						},
-					},
-					{
-						Field:    "field4",
-						Operator: FilterOperatorLike,
-						Value:    "value4",
-					},
-				},
-			},
-			Dialect: DialectPostgres,
-			Args:    []interface{}{},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: fmt.Sprintf(
-					"field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s",
-					filterOperatorMap[FilterOperatorEqual],
-					fmt.Sprintf("%s1", placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
-					fmt.Sprintf("(%s2, %s3, %s4)", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					fmt.Sprintf("i%s", filterOperatorMap[FilterOperatorLike]),
-					fmt.Sprintf("concat('%%', %s5, '%%')", placeholderMap[DialectPostgres]),
-				),
-				Args:  []interface{}{"value1", 1, 2, 3, "value4"},
-				Error: nil,
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero", DialectPostgres),
-			Filter: &Filter{
-				Logic: FilterLogicAnd,
-				Filters: []*Filter{
-					{
-						Field:    "field1",
-						Operator: FilterOperatorEqual,
-						Value:    "value1",
-					},
-					{
-						Logic: FilterLogicOr,
-						Filters: []*Filter{
-							{
-								Field:    "field2",
-								Operator: FilterOperatorIsNull,
-								Value:    nil,
-							},
-							{
-								Field:    "field3",
-								Operator: FilterOperatorIn,
-								Value:    []int64{1, 2, 3},
-							},
-						},
-					},
-					{
-						Field:    "field4",
-						Operator: FilterOperatorLike,
-						Value:    "value4",
-					},
-				},
-			},
-			Dialect: DialectPostgres,
-			Args:    []interface{}{"other args value"},
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: fmt.Sprintf(
-					"field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s",
-					filterOperatorMap[FilterOperatorEqual],
-					fmt.Sprintf("%s2", placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
-					fmt.Sprintf("(%s3, %s4, %s5)", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					fmt.Sprintf("i%s", filterOperatorMap[FilterOperatorLike]),
-					fmt.Sprintf("concat('%%', %s6, '%%')", placeholderMap[DialectPostgres]),
-				),
-				Args:  []interface{}{"other args value", "value1", 1, 2, 3, "value4"},
-				Error: nil,
+				ConditionQuery: "field1 = ?",
+				Args:           []interface{}{"value1"},
+				Error:          nil,
 			},
 		},
 	}

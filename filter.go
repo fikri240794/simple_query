@@ -129,7 +129,7 @@ func (f *Filter) validate() error {
 
 		if f.Operator == FilterOperatorIn || f.Operator == FilterOperatorNotIn {
 			if reflectValue.Kind() != reflect.Slice && reflectValue.Kind() != reflect.Array {
-				return fmt.Errorf("unsupported %s type of value for operator %s", reflectValue.Kind().String(), f.Operator)
+				return fmt.Errorf("unsupported %s value type for operator %s", reflectValue.Kind().String(), f.Operator)
 			}
 
 			if reflectValue.Len() == 0 {

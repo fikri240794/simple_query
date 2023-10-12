@@ -470,6 +470,28 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			},
 		},
 		{
+			Name: fmt.Sprintf("dialect %s with element sorts is nil", DialectMySQL),
+			SelectQuery: &SelectQuery{
+				Fields: []string{"field1", "field2", "field3"},
+				Table:  "table1",
+				Sorts: []*Sort{
+					nil,
+				},
+				Take:    100,
+				maxTake: 100,
+			},
+			Dialect: DialectMySQL,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Error error
+			}{
+				Query: "select field1, field2, field3 from table1 limit ?",
+				Args:  []interface{}{100},
+				Error: nil,
+			},
+		},
+		{
 			Name: fmt.Sprintf("dialect %s with take", DialectMySQL),
 			SelectQuery: &SelectQuery{
 				Fields:  []string{"field1", "field2", "field3"},
@@ -623,6 +645,28 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				Query: "",
 				Args:  nil,
 				Error: errors.New("field is required"),
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with element sorts is nil", DialectPostgres),
+			SelectQuery: &SelectQuery{
+				Fields: []string{"field1", "field2", "field3"},
+				Table:  "table1",
+				Sorts: []*Sort{
+					nil,
+				},
+				Take:    100,
+				maxTake: 100,
+			},
+			Dialect: DialectPostgres,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Error error
+			}{
+				Query: "select field1, field2, field3 from table1 limit $1",
+				Args:  []interface{}{100},
+				Error: nil,
 			},
 		},
 		{

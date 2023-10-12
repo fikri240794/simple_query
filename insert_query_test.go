@@ -82,58 +82,91 @@ func TestInsertQuery_Value(t *testing.T) {
 }
 
 func TestInsertQuery_getColumnsAndRowsValues(t *testing.T) {
-	var (
-		expectationColumns   []string
-		expectationRowValues [][]interface{}
-		insertQuery          *InsertQuery
-		actualColumns        []string
-		actualRowValues      [][]interface{}
-	)
-
-	expectationColumns = []string{"field1", "field2", "field3"}
-	expectationRowValues = [][]interface{}{
-		{"value1", 1, true},
-		{"value2", 2, false},
-		{"value3", 3, true},
+	var testCases []struct {
+		Name                 string
+		InsertQuery          *InsertQuery
+		ExpectationColumns   []string
+		ExpectationRowValues [][]interface{}
+	} = []struct {
+		Name                 string
+		InsertQuery          *InsertQuery
+		ExpectationColumns   []string
+		ExpectationRowValues [][]interface{}
+	}{
+		{
+			Name: "invalid row count",
+			InsertQuery: &InsertQuery{
+				Table: "table1",
+				FieldsValues: map[string][]interface{}{
+					"field1": {"value1", "value2", "value3", "value4"},
+					"field2": {1, 2, 3},
+					"field3": {true, false, true},
+				},
+			},
+			ExpectationColumns: []string{"field1", "field2", "field3"},
+			ExpectationRowValues: [][]interface{}{
+				{"value1", 1, true},
+				{"value2", 2, false},
+				{"value3", 3, true},
+				{"value4"},
+			},
+		},
+		{
+			Name: "insert query is valid",
+			InsertQuery: &InsertQuery{
+				Table: "table1",
+				FieldsValues: map[string][]interface{}{
+					"field1": {"value1", "value2", "value3"},
+					"field2": {1, 2, 3},
+					"field3": {true, false, true},
+				},
+			},
+			ExpectationColumns: []string{"field1", "field2", "field3"},
+			ExpectationRowValues: [][]interface{}{
+				{"value1", 1, true},
+				{"value2", 2, false},
+				{"value3", 3, true},
+			},
+		},
 	}
 
-	insertQuery = Insert().
-		Value("field1", "value1").
-		Value("field2", 1).
-		Value("field3", true).
-		Value("field2", 2).
-		Value("field1", "value2").
-		Value("field3", false).
-		Value("field1", "value3").
-		Value("field3", true).
-		Value("field2", 3)
+	for i := 0; i < len(testCases); i++ {
+		t.Run(testCases[i].Name, func(t *testing.T) {
+			var (
+				actualColumns   []string
+				actualRowValues [][]interface{}
+			)
 
-	actualColumns, actualRowValues = insertQuery.getColumnsAndRowsValues()
+			actualColumns, actualRowValues = testCases[i].InsertQuery.getColumnsAndRowsValues()
 
-	if len(expectationColumns) != len(actualColumns) {
-		t.Errorf("expectation length of column is %d, got %d", len(expectationColumns), len(actualColumns))
-	}
+			t.Logf("%d %v", i, actualRowValues)
 
-	for i := 0; i < len(expectationColumns); i++ {
-		if expectationColumns[i] != actualColumns[i] {
-			t.Errorf("expectation column is %s, got %s", expectationColumns[i], actualColumns[i])
-		}
-	}
-
-	if len(expectationRowValues) != len(actualRowValues) {
-		t.Errorf("expectation length of row is %d, got %d", len(expectationRowValues), len(actualRowValues))
-	}
-
-	for i := 0; i < len(expectationRowValues); i++ {
-		if len(expectationRowValues[i]) != len(actualRowValues[i]) {
-			t.Errorf("expectation length of values is %d, got %d", len(expectationRowValues[i]), len(actualRowValues[i]))
-		}
-
-		for j := 0; j < len(expectationRowValues[i]); j++ {
-			if !deepEqual(expectationRowValues[i][j], actualRowValues[i][j]) {
-				t.Errorf("expectation value is %v, got %v", expectationRowValues[i][j], actualRowValues[i][j])
+			if len(testCases[i].ExpectationColumns) != len(actualColumns) {
+				t.Errorf("expectation length of column is %d, got %d", len(testCases[i].ExpectationColumns), len(actualColumns))
 			}
-		}
+
+			for j := 0; j < len(testCases[i].ExpectationColumns); j++ {
+				if testCases[i].ExpectationColumns[j] != actualColumns[j] {
+					t.Errorf("expectation column is %s, got %s", testCases[i].ExpectationColumns[j], actualColumns[j])
+				}
+			}
+
+			if len(testCases[i].ExpectationRowValues) != len(actualRowValues) {
+				t.Errorf("expectation length of row is %d, got %d", len(testCases[i].ExpectationRowValues), len(actualRowValues))
+			}
+
+			for j := 0; j < len(testCases[i].ExpectationRowValues); j++ {
+				if len(testCases[i].ExpectationRowValues[j]) != len(actualRowValues[j]) {
+					t.Errorf("expectation length of values is %d, got %d", len(testCases[i].ExpectationRowValues[j]), len(actualRowValues[j]))
+				}
+
+				for k := 0; k < len(testCases[i].ExpectationRowValues[j]); k++ {
+					if !deepEqual(testCases[i].ExpectationRowValues[j][k], actualRowValues[j][k]) {
+						t.Errorf("expectation value is %v, got %v", testCases[i].ExpectationRowValues[j][k], actualRowValues[j][k])
+					}
+				}
+			}
+		})
 	}
 }
 
