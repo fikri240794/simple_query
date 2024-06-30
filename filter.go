@@ -1,52 +1,15 @@
 package simple_query
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 )
 
-type FilterLogic string
-type FilterOperator string
-
-const (
-	FilterLogicAnd FilterLogic = "and"
-	FilterLogicOr  FilterLogic = "or"
-
-	FilterOperatorEqual              FilterOperator = "equal"
-	FilterOperatorNotEqual           FilterOperator = "not_equal"
-	FilterOperatorGreaterThan        FilterOperator = "greater_than"
-	FilterOperatorGreaterThanOrEqual FilterOperator = "greater_than_or_equal"
-	FilterOperatorLessThan           FilterOperator = "less_than"
-	FilterOperatorLessThanOrEqual    FilterOperator = "less_than_or_equal"
-	FilterOperatorIsNull             FilterOperator = "is_null"
-	FilterOperatorIsNotNull          FilterOperator = "is_not_null"
-	FilterOperatorIn                 FilterOperator = "in"
-	FilterOperatorNotIn              FilterOperator = "not_in"
-	FilterOperatorLike               FilterOperator = "like"
-	FilterOperatorNotLike            FilterOperator = "not_like"
-)
-
-var filterOperatorMap map[FilterOperator]string = map[FilterOperator]string{
-	FilterOperatorEqual:              "=",
-	FilterOperatorNotEqual:           "!=",
-	FilterOperatorGreaterThan:        ">",
-	FilterOperatorGreaterThanOrEqual: ">=",
-	FilterOperatorLessThan:           "<",
-	FilterOperatorLessThanOrEqual:    "<=",
-	FilterOperatorIsNull:             "is null",
-	FilterOperatorIsNotNull:          "is not null",
-	FilterOperatorIn:                 "in",
-	FilterOperatorNotIn:              "not in",
-	FilterOperatorLike:               "like",
-	FilterOperatorNotLike:            "not like",
-}
-
 type Filter struct {
-	Logic    FilterLogic
+	Logic    Logic
 	Field    string
-	Operator FilterOperator
+	Operator Operator
 	Value    interface{}
 	Filters  []*Filter
 }
@@ -55,19 +18,19 @@ func NewFilter() *Filter {
 	return &Filter{}
 }
 
-func (f *Filter) SetLogic(logic FilterLogic) *Filter {
+func (f *Filter) SetLogic(logic Logic) *Filter {
 	f.Logic = logic
 	return f
 }
 
-func (f *Filter) SetCondition(field string, operator FilterOperator, value interface{}) *Filter {
+func (f *Filter) SetCondition(field string, operator Operator, value interface{}) *Filter {
 	f.Field = field
 	f.Operator = operator
 	f.Value = value
 	return f
 }
 
-func (f *Filter) AddFilter(field string, operator FilterOperator, value interface{}) *Filter {
+func (f *Filter) AddFilter(field string, operator Operator, value interface{}) *Filter {
 	f.Filters = append(f.Filters, &Filter{Field: field, Operator: operator, Value: value})
 	return f
 }
@@ -81,74 +44,58 @@ func (f *Filter) validate() error {
 	var reflectValue reflect.Value = reflect.ValueOf(f.Value)
 
 	if f.Logic != "" && f.Field != "" {
-		return errors.New("field is not empty")
+		return ErrFieldIsNotEmpty
 	}
 
 	if f.Logic != "" && f.Operator != "" {
-		return errors.New("operator is not empty")
+		return ErrOperatorIsNotEmpty
 	}
 
-	if f.Logic != "" && (f.Value != nil || allowedKindValue[reflectValue.Kind()]) {
-		return errors.New("value is not empty")
+	if f.Logic != "" && (f.Value != nil || reflectValue.Kind() != reflect.Invalid) {
+		return ErrValueIsNotEmpty
 	}
 
 	if f.Logic != "" && len(f.Filters) == 0 {
-		return errors.New("filters is required")
+		return ErrFiltersIsRequired
 	}
 
 	if f.Logic == "" && len(f.Filters) > 0 {
-		return errors.New("logic is required")
+		return ErrLogicIsRequired
 	}
 
 	if f.Logic == "" && len(f.Filters) == 0 {
 		if f.Field == "" {
-			return errors.New("field is required")
+			return ErrFieldIsRequired
 		}
 
 		if f.Operator == "" {
-			return errors.New("operator is required")
+			return ErrOperatorIsRequired
 		}
 
-		if f.Operator != FilterOperatorIsNull && f.Operator != FilterOperatorIsNotNull {
-			if f.Value == nil {
-				return errors.New("value is required")
-			}
-
-			if !allowedKindValue[reflectValue.Kind()] {
-				return fmt.Errorf("unsupported %s value type for operator %s", reflectValue.Kind().String(), f.Operator)
-			}
+		if f.Operator != OperatorIsNull && f.Operator != OperatorIsNotNull && f.Value == nil && reflectValue.Kind() == reflect.Invalid {
+			return ErrValueIsRequired
 		}
 
-		if (f.Operator == FilterOperatorIsNotNull || f.Operator == FilterOperatorIsNull) && f.Value != nil {
-			return errors.New("value is not empty")
+		if (f.Operator == OperatorIsNotNull || f.Operator == OperatorIsNull) && (f.Value != nil || reflectValue.Kind() != reflect.Invalid) {
+			return ErrValueIsNotEmpty
 		}
 
-		if f.Operator != FilterOperatorIn && f.Operator != FilterOperatorNotIn && (reflectValue.Kind() == reflect.Slice || reflectValue.Kind() == reflect.Array) {
-			return fmt.Errorf("unsupported %s value type for operator %s", reflectValue.Kind().String(), f.Operator)
+		if f.Operator != OperatorIn && f.Operator != OperatorNotIn && (reflectValue.Kind() == reflect.Slice || reflectValue.Kind() == reflect.Array) {
+			return fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflectValue.Kind().String(), f.Operator)
 		}
 
-		if f.Operator == FilterOperatorIn || f.Operator == FilterOperatorNotIn {
+		if f.Operator == OperatorIn || f.Operator == OperatorNotIn {
 			if reflectValue.Kind() != reflect.Slice && reflectValue.Kind() != reflect.Array {
-				return fmt.Errorf("unsupported %s value type for operator %s", reflectValue.Kind().String(), f.Operator)
+				return fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflectValue.Kind().String(), f.Operator)
 			}
 
 			if reflectValue.Len() == 0 {
-				return errors.New("value is required")
+				return ErrValueIsRequired
 			}
-
-			for i := 0; i < reflectValue.Len(); i++ {
-				if !allowedKindValue[reflectValue.Index(i).Kind()] || reflectValue.Index(i).Kind() == reflect.Slice || reflectValue.Index(i).Kind() == reflect.Array {
-					return fmt.Errorf("unsupported %s type of element value for operator %s", reflectValue.Index(i).Kind(), f.Operator)
-				}
-			}
-		}
-
-		if (f.Operator == FilterOperatorLike || f.Operator == FilterOperatorNotLike) && reflectValue.Kind() != reflect.String {
-			return fmt.Errorf("unsupported %s type of value for operator %s", reflectValue.Kind().String(), f.Operator)
 		}
 	}
 
-	for i := 0; i < len(f.Filters); i++ {
+	for i := range f.Filters {
 		var err error = f.Filters[i].validate()
 		if err != nil {
 			return err
@@ -156,28 +103,6 @@ func (f *Filter) validate() error {
 	}
 
 	return nil
-}
-
-func (f *Filter) typedSliceToInterfaceSlice(value interface{}) ([]interface{}, error) {
-	var (
-		reflectValue   reflect.Value
-		interfaceSlice []interface{}
-	)
-
-	reflectValue = reflect.ValueOf(value)
-	if reflectValue.Kind() != reflect.Slice && reflectValue.Kind() != reflect.Array {
-		return nil, fmt.Errorf("unsupported %s value type", reflectValue.Kind().String())
-	}
-
-	interfaceSlice = []interface{}{}
-	for i := 0; i < reflectValue.Len(); i++ {
-		if !allowedKindValue[reflectValue.Index(i).Kind()] || reflectValue.Index(i).Kind() == reflect.Slice || reflectValue.Index(i).Kind() == reflect.Array {
-			return nil, fmt.Errorf("unsupported %s type of element value", reflectValue.Index(i).Kind().String())
-		}
-		interfaceSlice = append(interfaceSlice, reflectValue.Index(i).Interface())
-	}
-
-	return interfaceSlice, nil
 }
 
 func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool) (string, []interface{}, error) {
@@ -194,12 +119,12 @@ func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool)
 	)
 
 	if dialect == "" {
-		err = errors.New("dialect is required")
+		err = ErrDialectIsRequired
 		return "", args, err
 	}
 
 	switch f.Operator {
-	case FilterOperatorEqual, FilterOperatorNotEqual, FilterOperatorGreaterThan, FilterOperatorGreaterThanOrEqual, FilterOperatorLessThan, FilterOperatorLessThanOrEqual:
+	case OperatorEqual, OperatorNotEqual, OperatorGreaterThan, OperatorGreaterThanOrEqual, OperatorLessThan, OperatorLessThanOrEqual:
 		conditionQueryFormat = "%s %s %s"
 		filterOperator = filterOperatorMap[f.Operator]
 		args = append(args, f.Value)
@@ -210,22 +135,23 @@ func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool)
 
 		return conditionQuery, args, nil
 
-	case FilterOperatorIsNull, FilterOperatorIsNotNull:
+	case OperatorIsNull, OperatorIsNotNull:
 		conditionQueryFormat = "%s %s"
 		filterOperator = filterOperatorMap[f.Operator]
 		conditionQuery = fmt.Sprintf(conditionQueryFormat, f.Field, filterOperator)
 
 		return conditionQuery, args, nil
 
-	case FilterOperatorIn, FilterOperatorNotIn:
+	case OperatorIn, OperatorNotIn:
 		var interfaceSlice []interface{}
 
 		conditionQueryFormat = "%s %s (%s)"
 		filterOperator = filterOperatorMap[f.Operator]
 
-		interfaceSlice, err = f.typedSliceToInterfaceSlice(f.Value)
+		interfaceSlice, err = typedSliceToInterfaceSlice(f.Value)
 		if err != nil {
-			return "", nil, fmt.Errorf("%s for operator %s", err.Error(), f.Operator)
+			err = fmt.Errorf(ErrForOperatorf, err.Error(), f.Operator)
+			return "", nil, err
 		}
 
 		args = append(args, interfaceSlice...)
@@ -236,16 +162,16 @@ func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool)
 
 		return conditionQuery, args, nil
 
-	case FilterOperatorLike, FilterOperatorNotLike:
+	case OperatorLike, OperatorNotLike:
 		conditionQueryFormat = "%s %s concat('%%', %s, '%%')"
 
 		switch dialect {
 		case DialectMySQL:
 			filterOperator = filterOperatorMap[f.Operator]
 		case DialectPostgres:
-			filterOperator = fmt.Sprintf("i%s", filterOperatorMap[FilterOperatorLike])
-			if f.Operator == FilterOperatorNotLike {
-				filterOperator = fmt.Sprintf("not i%s", filterOperatorMap[FilterOperatorLike])
+			filterOperator = fmt.Sprintf("i%s", filterOperatorMap[OperatorLike])
+			if f.Operator == OperatorNotLike {
+				filterOperator = fmt.Sprintf("not i%s", filterOperatorMap[OperatorLike])
 			}
 		}
 
@@ -262,7 +188,7 @@ func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool)
 		return "", args, nil
 	}
 
-	for i := 0; i < len(f.Filters); i++ {
+	for i := range f.Filters {
 		var (
 			subConditionQuery string
 			subArgs           []interface{}

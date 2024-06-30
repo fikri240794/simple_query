@@ -3,7 +3,6 @@ package simple_query
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"testing"
 )
 
@@ -76,11 +75,11 @@ func TestUpdateQuery_Where(t *testing.T) {
 			"field2": 2,
 		},
 		Filter: &Filter{
-			Logic: FilterLogicAnd,
+			Logic: LogicAnd,
 			Filters: []*Filter{
 				{
 					Field:    "field1",
-					Operator: FilterOperatorEqual,
+					Operator: OperatorEqual,
 					Value:    "value1",
 				},
 			},
@@ -92,8 +91,8 @@ func TestUpdateQuery_Where(t *testing.T) {
 		Set("field2", 2).
 		Where(
 			NewFilter().
-				SetLogic(FilterLogicAnd).
-				AddFilter("field1", FilterOperatorEqual, "value1"),
+				SetLogic(LogicAnd).
+				AddFilter("field1", OperatorEqual, "value1"),
 		)
 
 	if expectation.Table != actual.Table {
@@ -130,7 +129,7 @@ func TestUpdateQuery_validate(t *testing.T) {
 		{
 			Name:        "table is empty",
 			UpdateQuery: &UpdateQuery{},
-			Expectation: errors.New("table is required"),
+			Expectation: ErrTableIsRequired,
 		},
 		{
 			Name: "fields and value is empty",
@@ -138,7 +137,7 @@ func TestUpdateQuery_validate(t *testing.T) {
 				Table:       "table1",
 				FieldsValue: map[string]interface{}{},
 			},
-			Expectation: errors.New("fields is required"),
+			Expectation: ErrFieldsIsRequired,
 		},
 		{
 			Name: "field is empty",
@@ -148,39 +147,7 @@ func TestUpdateQuery_validate(t *testing.T) {
 					"": "field1",
 				},
 			},
-			Expectation: errors.New("field is required"),
-		},
-		{
-			Name: "value is not allowed",
-			UpdateQuery: &UpdateQuery{
-				Table: "table1",
-				FieldsValue: map[string]interface{}{
-					"field1": map[string]string{
-						"key1": "value1",
-					},
-				},
-			},
-			Expectation: fmt.Errorf("unsupported %s value type", reflect.Map.String()),
-		},
-		{
-			Name: "value is array",
-			UpdateQuery: &UpdateQuery{
-				Table: "table1",
-				FieldsValue: map[string]interface{}{
-					"field1": [3]string{"value1", "value2", "value3"},
-				},
-			},
-			Expectation: fmt.Errorf("unsupported %s value type", reflect.Array.String()),
-		},
-		{
-			Name: "value is slice",
-			UpdateQuery: &UpdateQuery{
-				Table: "table1",
-				FieldsValue: map[string]interface{}{
-					"field1": []string{"value1", "value2", "value3"},
-				},
-			},
-			Expectation: fmt.Errorf("unsupported %s value type", reflect.Slice.String()),
+			Expectation: ErrFieldIsRequired,
 		},
 		{
 			Name: "filter is empty",
@@ -190,7 +157,7 @@ func TestUpdateQuery_validate(t *testing.T) {
 					"field1": "value1",
 				},
 			},
-			Expectation: errors.New("filter is required"),
+			Expectation: ErrFilterIsRequired,
 		},
 		{
 			Name: "update query is valid",
@@ -200,11 +167,11 @@ func TestUpdateQuery_validate(t *testing.T) {
 					"field1": "value1",
 				},
 				Filter: &Filter{
-					Logic: FilterLogicAnd,
+					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
 							Field:    "field1",
-							Operator: FilterOperatorEqual,
+							Operator: OperatorEqual,
 							Value:    "value1",
 						},
 					},
@@ -264,7 +231,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("table is required"),
+				Error: ErrTableIsRequired,
 			},
 		},
 		{
@@ -281,7 +248,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("fields is required"),
+				Error: ErrFieldsIsRequired,
 			},
 		},
 		{
@@ -300,85 +267,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("field is required"),
-			},
-		},
-		{
-			Name: "value is not allowed",
-			UpdateQuery: &UpdateQuery{
-				Table: "table1",
-				FieldsValue: map[string]interface{}{
-					"field1": map[string]string{
-						"key1": "value1",
-					},
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: fmt.Errorf("unsupported %s value type", reflect.Map.String()),
-			},
-		},
-		{
-			Name: "value is array",
-			UpdateQuery: &UpdateQuery{
-				Table: "table1",
-				FieldsValue: map[string]interface{}{
-					"field1": [3]string{"value1", "value2", "value3"},
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: fmt.Errorf("unsupported %s value type", reflect.Array.String()),
-			},
-		},
-		{
-			Name: "value is slice",
-			UpdateQuery: &UpdateQuery{
-				Table: "table1",
-				FieldsValue: map[string]interface{}{
-					"field1": []string{"value1", "value2", "value3"},
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: fmt.Errorf("unsupported %s value type", reflect.Slice.String()),
-			},
-		},
-		{
-			Name: "value is slice",
-			UpdateQuery: &UpdateQuery{
-				Table: "table1",
-				FieldsValue: map[string]interface{}{
-					"field1": []string{"value1", "value2", "value3"},
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: fmt.Errorf("unsupported %s value type", reflect.Slice.String()),
+				Error: ErrFieldIsRequired,
 			},
 		},
 		{
@@ -408,7 +297,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 					"field1": "value1",
 				},
 				Filter: &Filter{
-					Logic:   FilterLogicAnd,
+					Logic:   LogicAnd,
 					Filters: []*Filter{},
 				},
 			},
@@ -420,7 +309,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("filters is required"),
+				Error: ErrFiltersIsRequired,
 			},
 		},
 		{
@@ -431,11 +320,11 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 					"field1": "value1",
 				},
 				Filter: &Filter{
-					Logic: FilterLogicAnd,
+					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
 							Field:    "field2",
-							Operator: FilterOperatorEqual,
+							Operator: OperatorEqual,
 							Value:    "value2",
 						},
 					},
@@ -460,11 +349,11 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 					"field1": "value1",
 				},
 				Filter: &Filter{
-					Logic: FilterLogicAnd,
+					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
 							Field:    "field2",
-							Operator: FilterOperatorEqual,
+							Operator: OperatorEqual,
 							Value:    "value2",
 						},
 					},

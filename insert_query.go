@@ -1,9 +1,7 @@
 package simple_query
 
 import (
-	"errors"
 	"fmt"
-	"reflect"
 	"sort"
 	"strings"
 )
@@ -73,45 +71,30 @@ func (i *InsertQuery) validate() error {
 	)
 
 	if i.Table == "" {
-		return errors.New("table is required")
+		return ErrTableIsRequired
 	}
 
 	columns, rowsValues = i.getColumnsAndRowsValues()
 
 	if len(columns) == 0 {
-		return errors.New("fields is required")
+		return ErrFieldsIsRequired
 	}
 
 	for columnIndex := 0; columnIndex < len(columns); columnIndex++ {
 		if columns[columnIndex] == "" {
-			return errors.New("field is required")
+			return ErrFieldIsRequired
 		}
 	}
 
 	if len(rowsValues) == 0 {
-		return errors.New("values is required")
+		return ErrValuesIsRequired
 	}
 
 	for rowIndex := 0; rowIndex < len(rowsValues); rowIndex++ {
-		var (
-			rowValues    []interface{}
-			reflectValue reflect.Value
-		)
-
-		rowValues = rowsValues[rowIndex]
+		var rowValues []interface{} = rowsValues[rowIndex]
 
 		if len(rowValues) != len(columns) {
-			return errors.New("value length is not equal to fields length")
-		}
-
-		for columnIndex := 0; columnIndex < len(rowValues); columnIndex++ {
-			if rowValues[columnIndex] != nil {
-				reflectValue = reflect.ValueOf(rowValues[columnIndex])
-
-				if !allowedKindValue[reflectValue.Kind()] || reflectValue.Kind() == reflect.Array || reflectValue.Kind() == reflect.Slice {
-					return fmt.Errorf("unsupported %s value type", reflectValue.Kind().String())
-				}
-			}
+			return ErrValueLengthIsNotEqualToFieldsLength
 		}
 	}
 
@@ -134,7 +117,8 @@ func (i *InsertQuery) ToSQLWithArgs(dialect Dialect) (string, []interface{}, err
 	}
 
 	if dialect == "" {
-		return "", nil, errors.New("dialect is required")
+		err = ErrDialectIsRequired
+		return "", nil, err
 	}
 
 	columns, rowsValues = i.getColumnsAndRowsValues()

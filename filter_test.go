@@ -42,25 +42,25 @@ func TestFilter_NewFilter(t *testing.T) {
 func TestFilter_SetLogic(t *testing.T) {
 	var testCases []struct {
 		Name        string
-		Logic       FilterLogic
+		Logic       Logic
 		Expectation *Filter
 	} = []struct {
 		Name        string
-		Logic       FilterLogic
+		Logic       Logic
 		Expectation *Filter
 	}{
 		{
 			Name:  "logic and",
-			Logic: FilterLogicAnd,
+			Logic: LogicAnd,
 			Expectation: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 			},
 		},
 		{
 			Name:  "logic or",
-			Logic: FilterLogicOr,
+			Logic: LogicOr,
 			Expectation: &Filter{
-				Logic: FilterLogicOr,
+				Logic: LogicOr,
 			},
 		},
 	}
@@ -78,145 +78,145 @@ func TestFilter_SetCondition(t *testing.T) {
 	var testCases []struct {
 		Name        string
 		Field       string
-		Operator    FilterOperator
+		Operator    Operator
 		Value       interface{}
 		Expectation *Filter
 	} = []struct {
 		Name        string
 		Field       string
-		Operator    FilterOperator
+		Operator    Operator
 		Value       interface{}
 		Expectation *Filter
 	}{
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorEqual),
+			Name:     fmt.Sprintf("operator %s", OperatorEqual),
 			Field:    "field1",
-			Operator: FilterOperatorEqual,
+			Operator: OperatorEqual,
 			Value:    "value1",
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorEqual,
+				Operator: OperatorEqual,
 				Value:    "value1",
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorNotEqual),
+			Name:     fmt.Sprintf("operator %s", OperatorNotEqual),
 			Field:    "field1",
-			Operator: FilterOperatorNotEqual,
+			Operator: OperatorNotEqual,
 			Value:    true,
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotEqual,
+				Operator: OperatorNotEqual,
 				Value:    true,
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorGreaterThan),
+			Name:     fmt.Sprintf("operator %s", OperatorGreaterThan),
 			Field:    "field1",
-			Operator: FilterOperatorGreaterThan,
+			Operator: OperatorGreaterThan,
 			Value:    int64(100),
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThan,
+				Operator: OperatorGreaterThan,
 				Value:    int64(100),
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorGreaterThanOrEqual),
+			Name:     fmt.Sprintf("operator %s", OperatorGreaterThanOrEqual),
 			Field:    "field1",
-			Operator: FilterOperatorGreaterThanOrEqual,
+			Operator: OperatorGreaterThanOrEqual,
 			Value:    float64(100),
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThanOrEqual,
+				Operator: OperatorGreaterThanOrEqual,
 				Value:    float64(100),
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorLessThan),
+			Name:     fmt.Sprintf("operator %s", OperatorLessThan),
 			Field:    "field1",
-			Operator: FilterOperatorLessThan,
+			Operator: OperatorLessThan,
 			Value:    uint64(100),
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThan,
+				Operator: OperatorLessThan,
 				Value:    uint64(100),
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorLessThanOrEqual),
+			Name:     fmt.Sprintf("operator %s", OperatorLessThanOrEqual),
 			Field:    "field1",
-			Operator: FilterOperatorLessThanOrEqual,
+			Operator: OperatorLessThanOrEqual,
 			Value:    "2006-01-02T15:04:05+07:00",
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThanOrEqual,
+				Operator: OperatorLessThanOrEqual,
 				Value:    "2006-01-02T15:04:05+07:00",
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorIsNull),
+			Name:     fmt.Sprintf("operator %s", OperatorIsNull),
 			Field:    "field1",
-			Operator: FilterOperatorIsNull,
+			Operator: OperatorIsNull,
 			Value:    nil,
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNull,
+				Operator: OperatorIsNull,
 				Value:    nil,
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorIsNotNull),
+			Name:     fmt.Sprintf("operator %s", OperatorIsNotNull),
 			Field:    "field1",
-			Operator: FilterOperatorIsNotNull,
+			Operator: OperatorIsNotNull,
 			Value:    nil,
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNotNull,
+				Operator: OperatorIsNotNull,
 				Value:    nil,
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorIn),
+			Name:     fmt.Sprintf("operator %s", OperatorIn),
 			Field:    "field1",
-			Operator: FilterOperatorIn,
+			Operator: OperatorIn,
 			Value:    []string{"value1", "value 2", "value3"},
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
+				Operator: OperatorIn,
 				Value:    []string{"value1", "value 2", "value3"},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorNotIn),
+			Name:     fmt.Sprintf("operator %s", OperatorNotIn),
 			Field:    "field1",
-			Operator: FilterOperatorNotIn,
+			Operator: OperatorNotIn,
 			Value:    [3]int64{1, 2, 3},
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotIn,
+				Operator: OperatorNotIn,
 				Value:    [3]int64{1, 2, 3},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorLike),
+			Name:     fmt.Sprintf("operator %s", OperatorLike),
 			Field:    "field1",
-			Operator: FilterOperatorLike,
+			Operator: OperatorLike,
 			Value:    "value1",
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLike,
+				Operator: OperatorLike,
 				Value:    "value1",
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorNotLike),
+			Name:     fmt.Sprintf("operator %s", OperatorNotLike),
 			Field:    "field1",
-			Operator: FilterOperatorNotLike,
+			Operator: OperatorNotLike,
 			Value:    "value1",
 			Expectation: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotLike,
+				Operator: OperatorNotLike,
 				Value:    "value1",
 			},
 		},
@@ -240,191 +240,191 @@ func TestFilter_AddFilter(t *testing.T) {
 	var testCases []struct {
 		Name        string
 		Field       string
-		Operator    FilterOperator
+		Operator    Operator
 		Value       interface{}
 		Expectation *Filter
 	} = []struct {
 		Name        string
 		Field       string
-		Operator    FilterOperator
+		Operator    Operator
 		Value       interface{}
 		Expectation *Filter
 	}{
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorEqual),
+			Name:     fmt.Sprintf("operator %s", OperatorEqual),
 			Field:    "field1",
-			Operator: FilterOperatorEqual,
+			Operator: OperatorEqual,
 			Value:    "value1",
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorNotEqual),
+			Name:     fmt.Sprintf("operator %s", OperatorNotEqual),
 			Field:    "field1",
-			Operator: FilterOperatorNotEqual,
+			Operator: OperatorNotEqual,
 			Value:    true,
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorNotEqual,
+						Operator: OperatorNotEqual,
 						Value:    true,
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorGreaterThan),
+			Name:     fmt.Sprintf("operator %s", OperatorGreaterThan),
 			Field:    "field1",
-			Operator: FilterOperatorGreaterThan,
+			Operator: OperatorGreaterThan,
 			Value:    int64(100),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorGreaterThan,
+						Operator: OperatorGreaterThan,
 						Value:    int64(100),
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorGreaterThanOrEqual),
+			Name:     fmt.Sprintf("operator %s", OperatorGreaterThanOrEqual),
 			Field:    "field1",
-			Operator: FilterOperatorGreaterThanOrEqual,
+			Operator: OperatorGreaterThanOrEqual,
 			Value:    float64(100),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorGreaterThanOrEqual,
+						Operator: OperatorGreaterThanOrEqual,
 						Value:    float64(100),
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorLessThan),
+			Name:     fmt.Sprintf("operator %s", OperatorLessThan),
 			Field:    "field1",
-			Operator: FilterOperatorLessThan,
+			Operator: OperatorLessThan,
 			Value:    uint64(100),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorLessThan,
+						Operator: OperatorLessThan,
 						Value:    uint64(100),
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorLessThanOrEqual),
+			Name:     fmt.Sprintf("operator %s", OperatorLessThanOrEqual),
 			Field:    "field1",
-			Operator: FilterOperatorLessThanOrEqual,
+			Operator: OperatorLessThanOrEqual,
 			Value:    "2006-01-02T15:04:05+07:00",
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorLessThanOrEqual,
+						Operator: OperatorLessThanOrEqual,
 						Value:    "2006-01-02T15:04:05+07:00",
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorIsNull),
+			Name:     fmt.Sprintf("operator %s", OperatorIsNull),
 			Field:    "field1",
-			Operator: FilterOperatorIsNull,
+			Operator: OperatorIsNull,
 			Value:    nil,
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorIsNull,
+						Operator: OperatorIsNull,
 						Value:    nil,
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorIsNotNull),
+			Name:     fmt.Sprintf("operator %s", OperatorIsNotNull),
 			Field:    "field1",
-			Operator: FilterOperatorIsNotNull,
+			Operator: OperatorIsNotNull,
 			Value:    nil,
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorIsNotNull,
+						Operator: OperatorIsNotNull,
 						Value:    nil,
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorIn),
+			Name:     fmt.Sprintf("operator %s", OperatorIn),
 			Field:    "field1",
-			Operator: FilterOperatorIn,
+			Operator: OperatorIn,
 			Value:    []string{"value1", "value 2", "value3"},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorIn,
+						Operator: OperatorIn,
 						Value:    []string{"value1", "value 2", "value3"},
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorNotIn),
+			Name:     fmt.Sprintf("operator %s", OperatorNotIn),
 			Field:    "field1",
-			Operator: FilterOperatorNotIn,
+			Operator: OperatorNotIn,
 			Value:    [3]int64{1, 2, 3},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorNotIn,
+						Operator: OperatorNotIn,
 						Value:    [3]int64{1, 2, 3},
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorLike),
+			Name:     fmt.Sprintf("operator %s", OperatorLike),
 			Field:    "field1",
-			Operator: FilterOperatorLike,
+			Operator: OperatorLike,
 			Value:    "value1",
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorLike,
+						Operator: OperatorLike,
 						Value:    "value1",
 					},
 				},
 			},
 		},
 		{
-			Name:     fmt.Sprintf("operator %s", FilterOperatorNotLike),
+			Name:     fmt.Sprintf("operator %s", OperatorNotLike),
 			Field:    "field1",
-			Operator: FilterOperatorNotLike,
+			Operator: OperatorNotLike,
 			Value:    "value1",
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorNotLike,
+						Operator: OperatorNotLike,
 						Value:    "value1",
 					},
 				},
@@ -457,204 +457,204 @@ func TestFilter_AddFilters(t *testing.T) {
 		Expectation *Filter
 	}{
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorEqual),
+			Name: fmt.Sprintf("operator %s", OperatorEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorEqual,
+				Operator: OperatorEqual,
 				Value:    "value1",
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorNotEqual),
+			Name: fmt.Sprintf("operator %s", OperatorNotEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotEqual,
+				Operator: OperatorNotEqual,
 				Value:    true,
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorNotEqual,
+						Operator: OperatorNotEqual,
 						Value:    true,
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorGreaterThan),
+			Name: fmt.Sprintf("operator %s", OperatorGreaterThan),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThan,
+				Operator: OperatorGreaterThan,
 				Value:    int64(100),
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorGreaterThan,
+						Operator: OperatorGreaterThan,
 						Value:    int64(100),
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorGreaterThanOrEqual),
+			Name: fmt.Sprintf("operator %s", OperatorGreaterThanOrEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThanOrEqual,
+				Operator: OperatorGreaterThanOrEqual,
 				Value:    float64(100),
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorGreaterThanOrEqual,
+						Operator: OperatorGreaterThanOrEqual,
 						Value:    float64(100),
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorLessThan),
+			Name: fmt.Sprintf("operator %s", OperatorLessThan),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThan,
+				Operator: OperatorLessThan,
 				Value:    uint64(100),
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorLessThan,
+						Operator: OperatorLessThan,
 						Value:    uint64(100),
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorLessThanOrEqual),
+			Name: fmt.Sprintf("operator %s", OperatorLessThanOrEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThanOrEqual,
+				Operator: OperatorLessThanOrEqual,
 				Value:    "2006-01-02T15:04:05+07:00",
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorLessThanOrEqual,
+						Operator: OperatorLessThanOrEqual,
 						Value:    "2006-01-02T15:04:05+07:00",
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorIsNull),
+			Name: fmt.Sprintf("operator %s", OperatorIsNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNull,
+				Operator: OperatorIsNull,
 				Value:    nil,
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorIsNull,
+						Operator: OperatorIsNull,
 						Value:    nil,
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorIsNotNull),
+			Name: fmt.Sprintf("operator %s", OperatorIsNotNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNotNull,
+				Operator: OperatorIsNotNull,
 				Value:    nil,
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorIsNotNull,
+						Operator: OperatorIsNotNull,
 						Value:    nil,
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorIn),
+			Name: fmt.Sprintf("operator %s", OperatorIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
+				Operator: OperatorIn,
 				Value:    []string{"value1", "value 2", "value3"},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorIn,
+						Operator: OperatorIn,
 						Value:    []string{"value1", "value 2", "value3"},
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorNotIn),
+			Name: fmt.Sprintf("operator %s", OperatorNotIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotIn,
+				Operator: OperatorNotIn,
 				Value:    [3]int64{1, 2, 3},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorNotIn,
+						Operator: OperatorNotIn,
 						Value:    [3]int64{1, 2, 3},
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorLike),
+			Name: fmt.Sprintf("operator %s", OperatorLike),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLike,
+				Operator: OperatorLike,
 				Value:    "value1",
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorLike,
+						Operator: OperatorLike,
 						Value:    "value1",
 					},
 				},
 			},
 		},
 		{
-			Name: fmt.Sprintf("operator %s", FilterOperatorNotLike),
+			Name: fmt.Sprintf("operator %s", OperatorNotLike),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotLike,
+				Operator: OperatorNotLike,
 				Value:    "value1",
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorNotLike,
+						Operator: OperatorNotLike,
 						Value:    "value1",
 					},
 				},
@@ -685,34 +685,34 @@ func TestFilter_validate(t *testing.T) {
 		{
 			Name: "logic is not empty and field is not empty",
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Field: "field1",
 			},
-			Expectation: errors.New("field is not empty"),
+			Expectation: ErrFieldIsNotEmpty,
 		},
 		{
 			Name: "logic is not empty and operator is not empty",
 			Filter: &Filter{
-				Logic:    FilterLogicOr,
-				Operator: FilterOperatorEqual,
+				Logic:    LogicOr,
+				Operator: OperatorEqual,
 			},
-			Expectation: errors.New("operator is not empty"),
+			Expectation: ErrOperatorIsNotEmpty,
 		},
 		{
 			Name: "logic is not empty and value is not nil or value kind is allowed",
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Value: "value1",
 			},
-			Expectation: errors.New("value is not empty"),
+			Expectation: ErrValueIsNotEmpty,
 		},
 		{
 			Name: "logic is not empty and filters length is zero",
 			Filter: &Filter{
-				Logic:   FilterLogicAnd,
+				Logic:   LogicAnd,
 				Filters: []*Filter{},
 			},
-			Expectation: errors.New("filters is required"),
+			Expectation: ErrFiltersIsRequired,
 		},
 		{
 			Name: "logic is empty and filters length greater than zero",
@@ -720,20 +720,20 @@ func TestFilter_validate(t *testing.T) {
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 				},
 			},
-			Expectation: errors.New("logic is required"),
+			Expectation: ErrLogicIsRequired,
 		},
 		{
 			Name: "logic is empty and filters length is zero and field is empty",
 			Filter: &Filter{
-				Operator: FilterOperatorEqual,
+				Operator: OperatorEqual,
 				Value:    "valu1",
 			},
-			Expectation: errors.New("field is required"),
+			Expectation: ErrFieldIsRequired,
 		},
 		{
 			Name: "logic is empty and filters length is zero and operator is empty",
@@ -741,183 +741,102 @@ func TestFilter_validate(t *testing.T) {
 				Field: "field1",
 				Value: "value1",
 			},
-			Expectation: errors.New("operator is required"),
+			Expectation: ErrOperatorIsRequired,
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value is nil", FilterOperatorIsNull, FilterOperatorIsNotNull),
+			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value is nil", OperatorIsNull, OperatorIsNotNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorEqual,
+				Operator: OperatorEqual,
 				Value:    nil,
 			},
-			Expectation: errors.New("value is required"),
+			Expectation: ErrValueIsRequired,
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value kind is not allowed", FilterOperatorIsNull, FilterOperatorIsNotNull),
+			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value is not nil", OperatorIsNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorEqual,
-				Value:    map[string]string{"key1": "value1"},
-			},
-			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Map.String(), FilterOperatorEqual),
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value is not nil", FilterOperatorIsNull),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIsNull,
+				Operator: OperatorIsNull,
 				Value:    "value1",
 			},
 			Expectation: errors.New("value is not empty"),
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value is not nil", FilterOperatorIsNotNull),
+			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value is not nil", OperatorIsNotNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNotNull,
+				Operator: OperatorIsNotNull,
 				Value:    "value1",
 			},
 			Expectation: errors.New("value is not empty"),
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value kind is %s", FilterOperatorIn, FilterOperatorNotIn, reflect.Slice.String()),
+			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value kind is %s", OperatorIn, OperatorNotIn, reflect.Slice.String()),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorEqual,
+				Operator: OperatorEqual,
 				Value:    []int64{1, 2, 3},
 			},
-			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Slice.String(), FilterOperatorEqual),
+			Expectation: fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.Slice.String(), OperatorEqual),
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value kind is %s", FilterOperatorIn, FilterOperatorNotIn, reflect.Array.String()),
+			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is not %s and operator is not %s and value kind is %s", OperatorIn, OperatorNotIn, reflect.Array.String()),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorEqual,
+				Operator: OperatorEqual,
 				Value:    [3]string{"value1", "value2", "value3"},
 			},
-			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Array.String(), FilterOperatorEqual),
+			Expectation: fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.Array.String(), OperatorEqual),
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not %s and %s", FilterOperatorIn, reflect.Slice.String(), reflect.Array.String()),
+			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not %s and %s", OperatorIn, reflect.Slice.String(), reflect.Array.String()),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
+				Operator: OperatorIn,
 				Value:    int64(123),
 			},
-			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Int64.String(), FilterOperatorIn),
+			Expectation: fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.Int64.String(), OperatorIn),
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value length is zero", FilterOperatorIn),
+			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value length is zero", OperatorIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
+				Operator: OperatorIn,
 				Value:    []int64{},
 			},
 			Expectation: errors.New("value is required"),
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is not allowed", FilterOperatorIn),
+			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not allowed", OperatorNotIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    []map[string]string{{"key1": "value1"}},
-			},
-			Expectation: fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Map.String(), FilterOperatorIn),
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is %s", FilterOperatorIn, reflect.Slice.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    [][]string{{"value1", "value2", "value3"}},
-			},
-			Expectation: fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorIn),
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is %s", FilterOperatorIn, reflect.Array.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    [][3]string{{"value1", "value2", "value3"}},
-			},
-			Expectation: fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Array.String(), FilterOperatorIn),
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not allowed", FilterOperatorNotIn),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
+				Operator: OperatorNotIn,
 				Value:    int64(123),
 			},
-			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Int64.String(), FilterOperatorNotIn),
+			Expectation: fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.Int64.String(), OperatorNotIn),
 		},
 		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value length is zero", FilterOperatorNotIn),
+			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value length is zero", OperatorNotIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotIn,
+				Operator: OperatorNotIn,
 				Value:    []int64{},
 			},
 			Expectation: errors.New("value is required"),
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is not allowed", FilterOperatorNotIn),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    []map[string]string{{"key1": "value1"}},
-			},
-			Expectation: fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Map.String(), FilterOperatorNotIn),
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is %s", FilterOperatorNotIn, reflect.Slice.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    [][]string{{"value1", "value2", "value3"}},
-			},
-			Expectation: fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorNotIn),
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and kind of element value is %s", FilterOperatorNotIn, reflect.Array.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    [][3]string{{"value1", "value2", "value3"}},
-			},
-			Expectation: fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Array.String(), FilterOperatorNotIn),
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not %s", FilterOperatorLike, reflect.String.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorLike,
-				Value:    int64(123),
-			},
-			Expectation: fmt.Errorf("unsupported %s type of value for operator %s", reflect.Int64.String(), FilterOperatorLike),
-		},
-		{
-			Name: fmt.Sprintf("logic is empty and filters length is zero and operator is %s and value kind is not %s", FilterOperatorNotLike, reflect.String.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotLike,
-				Value:    int64(123),
-			},
-			Expectation: fmt.Errorf("unsupported %s type of value for operator %s", reflect.Int64.String(), FilterOperatorNotLike),
 		},
 		{
 			Name: "filter is valid",
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    int64(123),
 					},
 					{
 						Field:    "field2",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 				},
@@ -927,21 +846,21 @@ func TestFilter_validate(t *testing.T) {
 		{
 			Name: "filter is invalid",
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    int64(123),
 					},
 					{
 						Field:    "field2",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    []string{"a", "b", "c"},
 					},
 				},
 			},
-			Expectation: fmt.Errorf("unsupported %s value type for operator %s", reflect.Slice.String(), FilterOperatorEqual),
+			Expectation: fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.Slice.String(), OperatorEqual),
 		},
 	}
 
@@ -959,115 +878,6 @@ func TestFilter_validate(t *testing.T) {
 
 			if testCases[i].Expectation != nil && actual != nil && testCases[i].Expectation.Error() != actual.Error() {
 				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Error(), actual.Error())
-			}
-		})
-	}
-}
-
-func TestFilter_typedSliceToInterfaceSlice(t *testing.T) {
-	var testCases []struct {
-		Name        string
-		Value       interface{}
-		Expectation struct {
-			Values []interface{}
-			Error  error
-		}
-	} = []struct {
-		Name        string
-		Value       interface{}
-		Expectation struct {
-			Values []interface{}
-			Error  error
-		}
-	}{
-		{
-			Name:  "value kind is not slice and value kind is not array",
-			Value: "value1",
-			Expectation: struct {
-				Values []interface{}
-				Error  error
-			}{
-				Values: nil,
-				Error:  fmt.Errorf("unsupported %s value type", reflect.String.String()),
-			},
-		},
-		{
-			Name:  "kind of element value is not allowed",
-			Value: []map[string]string{{"key1": "value1"}},
-			Expectation: struct {
-				Values []interface{}
-				Error  error
-			}{
-				Values: nil,
-				Error:  fmt.Errorf("unsupported %s type of element value", reflect.Map.String()),
-			},
-		},
-		{
-			Name:  fmt.Sprintf("kind of element value is %s", reflect.Slice.String()),
-			Value: [][]string{{"value1", "value2", "value3"}},
-			Expectation: struct {
-				Values []interface{}
-				Error  error
-			}{
-				Values: nil,
-				Error:  fmt.Errorf("unsupported %s type of element value", reflect.Slice.String()),
-			},
-		},
-		{
-			Name:  fmt.Sprintf("kind of element value is %s", reflect.Array.String()),
-			Value: [][3]string{{"value1", "value2", "value3"}},
-			Expectation: struct {
-				Values []interface{}
-				Error  error
-			}{
-				Values: nil,
-				Error:  fmt.Errorf("unsupported %s type of element value", reflect.Array.String()),
-			},
-		},
-		{
-			Name:  "slice of string to slice of interface",
-			Value: []string{"value1", "value2", "value3"},
-			Expectation: struct {
-				Values []interface{}
-				Error  error
-			}{
-				Values: []interface{}{"value1", "value2", "value3"},
-				Error:  nil,
-			},
-		},
-	}
-
-	for i := 0; i < len(testCases); i++ {
-		t.Run(testCases[i].Name, func(t *testing.T) {
-			var (
-				actualValues []interface{}
-				actualErr    error
-			)
-
-			actualValues, actualErr = NewFilter().typedSliceToInterfaceSlice(testCases[i].Value)
-
-			if testCases[i].Expectation.Error != nil && actualErr == nil {
-				t.Error("expectation error is not nil, got nil")
-			}
-
-			if testCases[i].Expectation.Error == nil && actualErr != nil {
-				t.Error("expectation error is nil, got not nil")
-			}
-
-			if testCases[i].Expectation.Error != nil && actualErr != nil && testCases[i].Expectation.Error.Error() != actualErr.Error() {
-				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Error.Error(), actualErr.Error())
-			}
-
-			if testCases[i].Expectation.Error == nil && actualErr == nil {
-				if len(testCases[i].Expectation.Values) != len(actualValues) {
-					t.Errorf("expectation values length is %d, got %d", len(testCases[i].Expectation.Values), len(actualValues))
-				}
-
-				for x := 0; x < len(testCases[i].Expectation.Values); x++ {
-					if !deepEqual(testCases[i].Expectation.Values[x], actualValues[x]) {
-						t.Errorf("expectation element slice of interface is %v, got %v", testCases[i].Expectation.Values[x], actualValues[x])
-					}
-				}
 			}
 		})
 	}
@@ -1110,16 +920,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: "",
 				Args:           []interface{}{},
-				Error:          errors.New("dialect is required"),
+				Error:          ErrDialectIsRequired,
 			},
 		},
 
 		// MYSQL
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorEqual),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorEqual,
+				Operator: OperatorEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1130,16 +940,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorEqual], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorEqual], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorEqual),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorEqual,
+				Operator: OperatorEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1150,16 +960,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorEqual], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorEqual], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorNotEqual),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorNotEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotEqual,
+				Operator: OperatorNotEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1170,16 +980,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorNotEqual], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorNotEqual], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorNotEqual),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorNotEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotEqual,
+				Operator: OperatorNotEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1190,16 +1000,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorNotEqual], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorNotEqual], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorGreaterThan),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorGreaterThan),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThan,
+				Operator: OperatorGreaterThan,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1210,16 +1020,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorGreaterThan], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorGreaterThan], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorGreaterThan),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorGreaterThan),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThan,
+				Operator: OperatorGreaterThan,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1230,16 +1040,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorGreaterThan], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorGreaterThan], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorGreaterThanOrEqual),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorGreaterThanOrEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThanOrEqual,
+				Operator: OperatorGreaterThanOrEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1250,16 +1060,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorGreaterThanOrEqual], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorGreaterThanOrEqual], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorGreaterThanOrEqual),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorGreaterThanOrEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThanOrEqual,
+				Operator: OperatorGreaterThanOrEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1270,16 +1080,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorGreaterThanOrEqual], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorGreaterThanOrEqual], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorLessThan),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorLessThan),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThan,
+				Operator: OperatorLessThan,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1290,16 +1100,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorLessThan], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorLessThan], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorLessThan),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorLessThan),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThan,
+				Operator: OperatorLessThan,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1310,16 +1120,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorLessThan], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorLessThan], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorLessThanOrEqual),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorLessThanOrEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThanOrEqual,
+				Operator: OperatorLessThanOrEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1330,16 +1140,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorLessThanOrEqual], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorLessThanOrEqual], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorLessThanOrEqual),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorLessThanOrEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThanOrEqual,
+				Operator: OperatorLessThanOrEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1350,16 +1160,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorLessThanOrEqual], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorLessThanOrEqual], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorIsNull),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorIsNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNull,
+				Operator: OperatorIsNull,
 				Value:    nil,
 			},
 			Dialect: DialectMySQL,
@@ -1370,16 +1180,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[FilterOperatorIsNull]),
+				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[OperatorIsNull]),
 				Args:           []interface{}{},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorIsNull),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorIsNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNull,
+				Operator: OperatorIsNull,
 				Value:    nil,
 			},
 			Dialect: DialectMySQL,
@@ -1390,16 +1200,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[FilterOperatorIsNull]),
+				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[OperatorIsNull]),
 				Args:           []interface{}{"other args value"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorIsNotNull),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorIsNotNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNotNull,
+				Operator: OperatorIsNotNull,
 				Value:    nil,
 			},
 			Dialect: DialectMySQL,
@@ -1410,16 +1220,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[FilterOperatorIsNotNull]),
+				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[OperatorIsNotNull]),
 				Args:           []interface{}{},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorIsNotNull),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorIsNotNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNotNull,
+				Operator: OperatorIsNotNull,
 				Value:    nil,
 			},
 			Dialect: DialectMySQL,
@@ -1430,16 +1240,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[FilterOperatorIsNotNull]),
+				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[OperatorIsNotNull]),
 				Args:           []interface{}{"other args value"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorIn),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
+				Operator: OperatorIn,
 				Value:    []string{"value1", "value2", "value3"},
 			},
 			Dialect: DialectMySQL,
@@ -1450,16 +1260,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[FilterOperatorIn], fmt.Sprintf("%s, %s, %s", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL])),
+				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[OperatorIn], fmt.Sprintf("%s, %s, %s", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL])),
 				Args:           []interface{}{"value1", "value2", "value3"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorIn),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
+				Operator: OperatorIn,
 				Value:    []string{"value1", "value2", "value3"},
 			},
 			Dialect: DialectMySQL,
@@ -1470,16 +1280,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[FilterOperatorIn], fmt.Sprintf("%s, %s, %s", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL])),
+				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[OperatorIn], fmt.Sprintf("%s, %s, %s", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL])),
 				Args:           []interface{}{"other args value", "value1", "value2", "value3"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with value kind is not %s and %s", DialectMySQL, FilterOperatorIn, reflect.Slice.String(), reflect.Array.String()),
+			Name: fmt.Sprintf("dialect %s with filter operator %s with value kind is not %s and %s", DialectMySQL, OperatorIn, reflect.Slice.String(), reflect.Array.String()),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
+				Operator: OperatorIn,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1492,74 +1302,14 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: "",
 				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.String.String(), FilterOperatorIn),
+				Error:          fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.String.String(), OperatorIn),
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is not allowed", DialectMySQL, FilterOperatorIn),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorNotIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    []map[string]string{{"key1": "value1"}},
-			},
-			Dialect: DialectMySQL,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Map.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is %s", DialectMySQL, FilterOperatorIn, reflect.Slice.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    [][]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: DialectMySQL,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is %s", DialectMySQL, FilterOperatorIn, reflect.Array.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    [][3]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: DialectMySQL,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Array.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorNotIn),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
+				Operator: OperatorNotIn,
 				Value:    []string{"value1", "value2", "value3"},
 			},
 			Dialect: DialectMySQL,
@@ -1570,16 +1320,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[FilterOperatorNotIn], fmt.Sprintf("%s, %s, %s", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL])),
+				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[OperatorNotIn], fmt.Sprintf("%s, %s, %s", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL])),
 				Args:           []interface{}{"value1", "value2", "value3"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorNotIn),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorNotIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotIn,
+				Operator: OperatorNotIn,
 				Value:    []string{"value1", "value2", "value3"},
 			},
 			Dialect: DialectMySQL,
@@ -1590,16 +1340,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[FilterOperatorNotIn], fmt.Sprintf("%s, %s, %s", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL])),
+				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[OperatorNotIn], fmt.Sprintf("%s, %s, %s", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL])),
 				Args:           []interface{}{"other args value", "value1", "value2", "value3"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with value kind is not %s and %s", DialectMySQL, FilterOperatorNotIn, reflect.Slice.String(), reflect.Array.String()),
+			Name: fmt.Sprintf("dialect %s with filter operator %s with value kind is not %s and %s", DialectMySQL, OperatorNotIn, reflect.Slice.String(), reflect.Array.String()),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotIn,
+				Operator: OperatorNotIn,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1612,74 +1362,14 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: "",
 				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.String.String(), FilterOperatorNotIn),
+				Error:          fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.String.String(), OperatorNotIn),
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is not allowed", DialectMySQL, FilterOperatorNotIn),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorLike),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    []map[string]string{{"key1": "value1"}},
-			},
-			Dialect: DialectMySQL,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Map.String(), FilterOperatorNotIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is %s", DialectMySQL, FilterOperatorNotIn, reflect.Slice.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    [][]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: DialectMySQL,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorNotIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is %s", DialectMySQL, FilterOperatorNotIn, reflect.Array.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    [][3]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: DialectMySQL,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Array.String(), FilterOperatorNotIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorLike),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorLike,
+				Operator: OperatorLike,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1690,16 +1380,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", filterOperatorMap[FilterOperatorLike], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", filterOperatorMap[OperatorLike], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorLike),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorLike),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLike,
+				Operator: OperatorLike,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1710,16 +1400,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", filterOperatorMap[FilterOperatorLike], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", filterOperatorMap[OperatorLike], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, FilterOperatorNotLike),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorNotLike),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotLike,
+				Operator: OperatorNotLike,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1730,16 +1420,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", filterOperatorMap[FilterOperatorNotLike], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", filterOperatorMap[OperatorNotLike], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, FilterOperatorNotLike),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectMySQL, OperatorNotLike),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotLike,
+				Operator: OperatorNotLike,
 				Value:    "value1",
 			},
 			Dialect: DialectMySQL,
@@ -1750,7 +1440,7 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", filterOperatorMap[FilterOperatorNotLike], placeholderMap[DialectMySQL]),
+				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", filterOperatorMap[OperatorNotLike], placeholderMap[DialectMySQL]),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
@@ -1790,31 +1480,31 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s", DialectMySQL),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 					{
-						Logic: FilterLogicOr,
+						Logic: LogicOr,
 						Filters: []*Filter{
 							{
 								Field:    "field2",
-								Operator: FilterOperatorIsNull,
+								Operator: OperatorIsNull,
 								Value:    nil,
 							},
 							{
 								Field:    "field3",
-								Operator: FilterOperatorIn,
+								Operator: OperatorIn,
 								Value:    []int64{1, 2, 3},
 							},
 						},
 					},
 					{
 						Field:    "field4",
-						Operator: FilterOperatorLike,
+						Operator: OperatorLike,
 						Value:    "value4",
 					},
 				},
@@ -1829,15 +1519,15 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: fmt.Sprintf(
 					"(field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s)",
-					filterOperatorMap[FilterOperatorEqual],
+					filterOperatorMap[OperatorEqual],
 					placeholderMap[DialectMySQL],
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
+					LogicAnd,
+					filterOperatorMap[OperatorIsNull],
+					LogicOr,
+					filterOperatorMap[OperatorIn],
 					fmt.Sprintf("(%s, %s, %s)", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorLike],
+					LogicAnd,
+					filterOperatorMap[OperatorLike],
 					fmt.Sprintf("concat('%%', %s, '%%')", placeholderMap[DialectMySQL]),
 				),
 				Args:  []interface{}{"value1", 1, 2, 3, "value4"},
@@ -1847,7 +1537,7 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s with element filters is empty filter", DialectMySQL),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{},
 					{},
@@ -1870,7 +1560,7 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s with element filters is nil", DialectMySQL),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					nil,
 					nil,
@@ -1893,11 +1583,11 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s with element filters is invalid", DialectMySQL),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorIn,
+						Operator: OperatorIn,
 						Value:    "value1",
 					},
 				},
@@ -1912,62 +1602,37 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: "",
 				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.String.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with element values of element filters is invalid", DialectMySQL),
-			Filter: &Filter{
-				Logic: FilterLogicAnd,
-				Filters: []*Filter{
-					{
-						Field:    "field1",
-						Operator: FilterOperatorNotIn,
-						Value:    [][]string{{"a", "b", "c"}},
-					},
-				},
-			},
-			Dialect: DialectMySQL,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorNotIn),
+				Error:          fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.String.String(), OperatorIn),
 			},
 		},
 		{
 			Name: fmt.Sprintf("dialect %s and args length greater than zero", DialectMySQL),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 					{
-						Logic: FilterLogicOr,
+						Logic: LogicOr,
 						Filters: []*Filter{
 							{
 								Field:    "field2",
-								Operator: FilterOperatorIsNull,
+								Operator: OperatorIsNull,
 								Value:    nil,
 							},
 							{
 								Field:    "field3",
-								Operator: FilterOperatorIn,
+								Operator: OperatorIn,
 								Value:    []int64{1, 2, 3},
 							},
 						},
 					},
 					{
 						Field:    "field4",
-						Operator: FilterOperatorLike,
+						Operator: OperatorLike,
 						Value:    "value4",
 					},
 				},
@@ -1982,15 +1647,15 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: fmt.Sprintf(
 					"(field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s)",
-					filterOperatorMap[FilterOperatorEqual],
+					filterOperatorMap[OperatorEqual],
 					placeholderMap[DialectMySQL],
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
+					LogicAnd,
+					filterOperatorMap[OperatorIsNull],
+					LogicOr,
+					filterOperatorMap[OperatorIn],
 					fmt.Sprintf("(%s, %s, %s)", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorLike],
+					LogicAnd,
+					filterOperatorMap[OperatorLike],
 					fmt.Sprintf("concat('%%', %s, '%%')", placeholderMap[DialectMySQL]),
 				),
 				Args:  []interface{}{"other args value", "value1", 1, 2, 3, "value4"},
@@ -2000,31 +1665,31 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s with isRoot is true", DialectMySQL),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 					{
-						Logic: FilterLogicOr,
+						Logic: LogicOr,
 						Filters: []*Filter{
 							{
 								Field:    "field2",
-								Operator: FilterOperatorIsNull,
+								Operator: OperatorIsNull,
 								Value:    nil,
 							},
 							{
 								Field:    "field3",
-								Operator: FilterOperatorIn,
+								Operator: OperatorIn,
 								Value:    []int64{1, 2, 3},
 							},
 						},
 					},
 					{
 						Field:    "field4",
-						Operator: FilterOperatorLike,
+						Operator: OperatorLike,
 						Value:    "value4",
 					},
 				},
@@ -2039,15 +1704,15 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: fmt.Sprintf(
 					"field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s",
-					filterOperatorMap[FilterOperatorEqual],
+					filterOperatorMap[OperatorEqual],
 					placeholderMap[DialectMySQL],
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
+					LogicAnd,
+					filterOperatorMap[OperatorIsNull],
+					LogicOr,
+					filterOperatorMap[OperatorIn],
 					fmt.Sprintf("(%s, %s, %s)", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorLike],
+					LogicAnd,
+					filterOperatorMap[OperatorLike],
 					fmt.Sprintf("concat('%%', %s, '%%')", placeholderMap[DialectMySQL]),
 				),
 				Args:  []interface{}{"value1", 1, 2, 3, "value4"},
@@ -2057,31 +1722,31 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s and args length greater than zero and isRoot is true", DialectMySQL),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 					{
-						Logic: FilterLogicOr,
+						Logic: LogicOr,
 						Filters: []*Filter{
 							{
 								Field:    "field2",
-								Operator: FilterOperatorIsNull,
+								Operator: OperatorIsNull,
 								Value:    nil,
 							},
 							{
 								Field:    "field3",
-								Operator: FilterOperatorIn,
+								Operator: OperatorIn,
 								Value:    []int64{1, 2, 3},
 							},
 						},
 					},
 					{
 						Field:    "field4",
-						Operator: FilterOperatorLike,
+						Operator: OperatorLike,
 						Value:    "value4",
 					},
 				},
@@ -2096,15 +1761,15 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: fmt.Sprintf(
 					"field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s",
-					filterOperatorMap[FilterOperatorEqual],
+					filterOperatorMap[OperatorEqual],
 					placeholderMap[DialectMySQL],
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
+					LogicAnd,
+					filterOperatorMap[OperatorIsNull],
+					LogicOr,
+					filterOperatorMap[OperatorIn],
 					fmt.Sprintf("(%s, %s, %s)", placeholderMap[DialectMySQL], placeholderMap[DialectMySQL], placeholderMap[DialectMySQL]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorLike],
+					LogicAnd,
+					filterOperatorMap[OperatorLike],
 					fmt.Sprintf("concat('%%', %s, '%%')", placeholderMap[DialectMySQL]),
 				),
 				Args:  []interface{}{"other args value", "value1", 1, 2, 3, "value4"},
@@ -2114,10 +1779,10 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 
 		// POSTGRES
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorEqual),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorEqual,
+				Operator: OperatorEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2128,16 +1793,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorEqual], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorEqual], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorEqual),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorEqual,
+				Operator: OperatorEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2148,16 +1813,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorEqual], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorEqual], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorNotEqual),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorNotEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotEqual,
+				Operator: OperatorNotEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2168,16 +1833,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorNotEqual], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorNotEqual], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorNotEqual),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorNotEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotEqual,
+				Operator: OperatorNotEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2188,16 +1853,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorNotEqual], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorNotEqual], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorGreaterThan),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorGreaterThan),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThan,
+				Operator: OperatorGreaterThan,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2208,16 +1873,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorGreaterThan], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorGreaterThan], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorGreaterThan),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorGreaterThan),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThan,
+				Operator: OperatorGreaterThan,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2228,16 +1893,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorGreaterThan], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorGreaterThan], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorGreaterThanOrEqual),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorGreaterThanOrEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThanOrEqual,
+				Operator: OperatorGreaterThanOrEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2248,16 +1913,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorGreaterThanOrEqual], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorGreaterThanOrEqual], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorGreaterThanOrEqual),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorGreaterThanOrEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorGreaterThanOrEqual,
+				Operator: OperatorGreaterThanOrEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2268,16 +1933,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorGreaterThanOrEqual], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorGreaterThanOrEqual], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorLessThan),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorLessThan),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThan,
+				Operator: OperatorLessThan,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2288,16 +1953,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorLessThan], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorLessThan], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorLessThan),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorLessThan),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThan,
+				Operator: OperatorLessThan,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2308,16 +1973,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorLessThan], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorLessThan], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorLessThanOrEqual),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorLessThanOrEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThanOrEqual,
+				Operator: OperatorLessThanOrEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2328,16 +1993,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorLessThanOrEqual], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorLessThanOrEqual], fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorLessThanOrEqual),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorLessThanOrEqual),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLessThanOrEqual,
+				Operator: OperatorLessThanOrEqual,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2348,16 +2013,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[FilterOperatorLessThanOrEqual], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s %s", "field1", filterOperatorMap[OperatorLessThanOrEqual], fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorIsNull),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorIsNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNull,
+				Operator: OperatorIsNull,
 				Value:    nil,
 			},
 			Dialect: DialectPostgres,
@@ -2368,16 +2033,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[FilterOperatorIsNull]),
+				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[OperatorIsNull]),
 				Args:           []interface{}{},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorIsNull),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorIsNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNull,
+				Operator: OperatorIsNull,
 				Value:    nil,
 			},
 			Dialect: DialectPostgres,
@@ -2388,16 +2053,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[FilterOperatorIsNull]),
+				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[OperatorIsNull]),
 				Args:           []interface{}{"other args value"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorIsNotNull),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorIsNotNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNotNull,
+				Operator: OperatorIsNotNull,
 				Value:    nil,
 			},
 			Dialect: DialectPostgres,
@@ -2408,16 +2073,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[FilterOperatorIsNotNull]),
+				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[OperatorIsNotNull]),
 				Args:           []interface{}{},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorIsNotNull),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorIsNotNull),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIsNotNull,
+				Operator: OperatorIsNotNull,
 				Value:    nil,
 			},
 			Dialect: DialectPostgres,
@@ -2428,16 +2093,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[FilterOperatorIsNotNull]),
+				ConditionQuery: fmt.Sprintf("%s %s", "field1", filterOperatorMap[OperatorIsNotNull]),
 				Args:           []interface{}{"other args value"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorIn),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
+				Operator: OperatorIn,
 				Value:    []string{"value1", "value2", "value3"},
 			},
 			Dialect: DialectPostgres,
@@ -2448,16 +2113,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[FilterOperatorIn], fmt.Sprintf("%s1, %s2, %s3", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[OperatorIn], fmt.Sprintf("%s1, %s2, %s3", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"value1", "value2", "value3"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorIn),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
+				Operator: OperatorIn,
 				Value:    []string{"value1", "value2", "value3"},
 			},
 			Dialect: DialectPostgres,
@@ -2468,16 +2133,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[FilterOperatorIn], fmt.Sprintf("%s2, %s3, %s4", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[OperatorIn], fmt.Sprintf("%s2, %s3, %s4", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"other args value", "value1", "value2", "value3"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with value kind is not %s and %s", DialectPostgres, FilterOperatorIn, reflect.Slice.String(), reflect.Array.String()),
+			Name: fmt.Sprintf("dialect %s with filter operator %s with value kind is not %s and %s", DialectPostgres, OperatorIn, reflect.Slice.String(), reflect.Array.String()),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
+				Operator: OperatorIn,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2490,74 +2155,14 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: "",
 				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.String.String(), FilterOperatorIn),
+				Error:          fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.String.String(), OperatorIn),
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is not allowed", DialectPostgres, FilterOperatorIn),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorNotIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    []map[string]string{{"key1": "value1"}},
-			},
-			Dialect: DialectPostgres,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Map.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is %s", DialectPostgres, FilterOperatorIn, reflect.Slice.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    [][]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: DialectPostgres,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is %s", DialectPostgres, FilterOperatorIn, reflect.Array.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorIn,
-				Value:    [][3]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: DialectPostgres,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Array.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorNotIn),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
+				Operator: OperatorNotIn,
 				Value:    []string{"value1", "value2", "value3"},
 			},
 			Dialect: DialectPostgres,
@@ -2568,16 +2173,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[FilterOperatorNotIn], fmt.Sprintf("%s1, %s2, %s3", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[OperatorNotIn], fmt.Sprintf("%s1, %s2, %s3", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"value1", "value2", "value3"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorNotIn),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorNotIn),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotIn,
+				Operator: OperatorNotIn,
 				Value:    []string{"value1", "value2", "value3"},
 			},
 			Dialect: DialectPostgres,
@@ -2588,16 +2193,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[FilterOperatorNotIn], fmt.Sprintf("%s2, %s3, %s4", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s (%s)", "field1", filterOperatorMap[OperatorNotIn], fmt.Sprintf("%s2, %s3, %s4", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"other args value", "value1", "value2", "value3"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with value kind is not %s and %s", DialectPostgres, FilterOperatorNotIn, reflect.Slice.String(), reflect.Array.String()),
+			Name: fmt.Sprintf("dialect %s with filter operator %s with value kind is not %s and %s", DialectPostgres, OperatorNotIn, reflect.Slice.String(), reflect.Array.String()),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotIn,
+				Operator: OperatorNotIn,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2610,74 +2215,14 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: "",
 				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.String.String(), FilterOperatorNotIn),
+				Error:          fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.String.String(), OperatorNotIn),
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is not allowed", DialectPostgres, FilterOperatorNotIn),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorLike),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    []map[string]string{{"key1": "value1"}},
-			},
-			Dialect: DialectPostgres,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Map.String(), FilterOperatorNotIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is %s", DialectPostgres, FilterOperatorNotIn, reflect.Slice.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    [][]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: DialectPostgres,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorNotIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s with kind of element value is %s", DialectPostgres, FilterOperatorNotIn, reflect.Array.String()),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorNotIn,
-				Value:    [][3]string{{"value1", "value2", "value3"}},
-			},
-			Dialect: DialectPostgres,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Array.String(), FilterOperatorNotIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorLike),
-			Filter: &Filter{
-				Field:    "field1",
-				Operator: FilterOperatorLike,
+				Operator: OperatorLike,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2688,16 +2233,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", fmt.Sprintf("i%s", filterOperatorMap[FilterOperatorLike]), fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", fmt.Sprintf("i%s", filterOperatorMap[OperatorLike]), fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorLike),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorLike),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorLike,
+				Operator: OperatorLike,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2708,16 +2253,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", fmt.Sprintf("i%s", filterOperatorMap[FilterOperatorLike]), fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", fmt.Sprintf("i%s", filterOperatorMap[OperatorLike]), fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, FilterOperatorNotLike),
+			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorNotLike),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotLike,
+				Operator: OperatorNotLike,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2728,16 +2273,16 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", fmt.Sprintf("not i%s", filterOperatorMap[FilterOperatorLike]), fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", fmt.Sprintf("not i%s", filterOperatorMap[OperatorLike]), fmt.Sprintf("%s1", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"value1"},
 				Error:          nil,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, FilterOperatorNotLike),
+			Name: fmt.Sprintf("dialect %s and args length greater than zero with filter operator %s", DialectPostgres, OperatorNotLike),
 			Filter: &Filter{
 				Field:    "field1",
-				Operator: FilterOperatorNotLike,
+				Operator: OperatorNotLike,
 				Value:    "value1",
 			},
 			Dialect: DialectPostgres,
@@ -2748,7 +2293,7 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Args           []interface{}
 				Error          error
 			}{
-				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", fmt.Sprintf("not i%s", filterOperatorMap[FilterOperatorLike]), fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
+				ConditionQuery: fmt.Sprintf("%s %s concat('%%', %s, '%%')", "field1", fmt.Sprintf("not i%s", filterOperatorMap[OperatorLike]), fmt.Sprintf("%s2", placeholderMap[DialectPostgres])),
 				Args:           []interface{}{"other args value", "value1"},
 				Error:          nil,
 			},
@@ -2788,31 +2333,31 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s", DialectPostgres),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 					{
-						Logic: FilterLogicOr,
+						Logic: LogicOr,
 						Filters: []*Filter{
 							{
 								Field:    "field2",
-								Operator: FilterOperatorIsNull,
+								Operator: OperatorIsNull,
 								Value:    nil,
 							},
 							{
 								Field:    "field3",
-								Operator: FilterOperatorIn,
+								Operator: OperatorIn,
 								Value:    []int64{1, 2, 3},
 							},
 						},
 					},
 					{
 						Field:    "field4",
-						Operator: FilterOperatorLike,
+						Operator: OperatorLike,
 						Value:    "value4",
 					},
 				},
@@ -2827,15 +2372,15 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: fmt.Sprintf(
 					"(field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s)",
-					filterOperatorMap[FilterOperatorEqual],
+					filterOperatorMap[OperatorEqual],
 					fmt.Sprintf("%s1", placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
+					LogicAnd,
+					filterOperatorMap[OperatorIsNull],
+					LogicOr,
+					filterOperatorMap[OperatorIn],
 					fmt.Sprintf("(%s2, %s3, %s4)", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					fmt.Sprintf("i%s", filterOperatorMap[FilterOperatorLike]),
+					LogicAnd,
+					fmt.Sprintf("i%s", filterOperatorMap[OperatorLike]),
 					fmt.Sprintf("concat('%%', %s5, '%%')", placeholderMap[DialectPostgres]),
 				),
 				Args:  []interface{}{"value1", 1, 2, 3, "value4"},
@@ -2845,7 +2390,7 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s with element filters is empty filter", DialectPostgres),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{},
 					{},
@@ -2868,7 +2413,7 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s with element filters is nil", DialectPostgres),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					nil,
 					nil,
@@ -2891,11 +2436,11 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s with element filters is invalid", DialectPostgres),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorIn,
+						Operator: OperatorIn,
 						Value:    "value1",
 					},
 				},
@@ -2910,62 +2455,37 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: "",
 				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.String.String(), FilterOperatorIn),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with element values of element filters is invalid", DialectPostgres),
-			Filter: &Filter{
-				Logic: FilterLogicAnd,
-				Filters: []*Filter{
-					{
-						Field:    "field1",
-						Operator: FilterOperatorNotIn,
-						Value:    [][]string{{"a", "b", "c"}},
-					},
-				},
-			},
-			Dialect: DialectPostgres,
-			Args:    []interface{}{},
-			IsRoot:  false,
-			Expectation: struct {
-				ConditionQuery string
-				Args           []interface{}
-				Error          error
-			}{
-				ConditionQuery: "",
-				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s type of element value for operator %s", reflect.Slice.String(), FilterOperatorNotIn),
+				Error:          fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.String.String(), OperatorIn),
 			},
 		},
 		{
 			Name: fmt.Sprintf("dialect %s and args length greater than zero", DialectPostgres),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 					{
-						Logic: FilterLogicOr,
+						Logic: LogicOr,
 						Filters: []*Filter{
 							{
 								Field:    "field2",
-								Operator: FilterOperatorIsNull,
+								Operator: OperatorIsNull,
 								Value:    nil,
 							},
 							{
 								Field:    "field3",
-								Operator: FilterOperatorIn,
+								Operator: OperatorIn,
 								Value:    []int64{1, 2, 3},
 							},
 						},
 					},
 					{
 						Field:    "field4",
-						Operator: FilterOperatorLike,
+						Operator: OperatorLike,
 						Value:    "value4",
 					},
 				},
@@ -2980,15 +2500,15 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: fmt.Sprintf(
 					"(field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s)",
-					filterOperatorMap[FilterOperatorEqual],
+					filterOperatorMap[OperatorEqual],
 					fmt.Sprintf("%s2", placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
+					LogicAnd,
+					filterOperatorMap[OperatorIsNull],
+					LogicOr,
+					filterOperatorMap[OperatorIn],
 					fmt.Sprintf("(%s3, %s4, %s5)", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					fmt.Sprintf("i%s", filterOperatorMap[FilterOperatorLike]),
+					LogicAnd,
+					fmt.Sprintf("i%s", filterOperatorMap[OperatorLike]),
 					fmt.Sprintf("concat('%%', %s6, '%%')", placeholderMap[DialectPostgres]),
 				),
 				Args:  []interface{}{"other args value", "value1", 1, 2, 3, "value4"},
@@ -2998,31 +2518,31 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s with isRoot is true", DialectPostgres),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 					{
-						Logic: FilterLogicOr,
+						Logic: LogicOr,
 						Filters: []*Filter{
 							{
 								Field:    "field2",
-								Operator: FilterOperatorIsNull,
+								Operator: OperatorIsNull,
 								Value:    nil,
 							},
 							{
 								Field:    "field3",
-								Operator: FilterOperatorIn,
+								Operator: OperatorIn,
 								Value:    []int64{1, 2, 3},
 							},
 						},
 					},
 					{
 						Field:    "field4",
-						Operator: FilterOperatorLike,
+						Operator: OperatorLike,
 						Value:    "value4",
 					},
 				},
@@ -3037,15 +2557,15 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: fmt.Sprintf(
 					"field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s",
-					filterOperatorMap[FilterOperatorEqual],
+					filterOperatorMap[OperatorEqual],
 					fmt.Sprintf("%s1", placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
+					LogicAnd,
+					filterOperatorMap[OperatorIsNull],
+					LogicOr,
+					filterOperatorMap[OperatorIn],
 					fmt.Sprintf("(%s2, %s3, %s4)", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					fmt.Sprintf("i%s", filterOperatorMap[FilterOperatorLike]),
+					LogicAnd,
+					fmt.Sprintf("i%s", filterOperatorMap[OperatorLike]),
 					fmt.Sprintf("concat('%%', %s5, '%%')", placeholderMap[DialectPostgres]),
 				),
 				Args:  []interface{}{"value1", 1, 2, 3, "value4"},
@@ -3055,31 +2575,31 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s and args length greater than zero and isRoot is true", DialectPostgres),
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 					{
-						Logic: FilterLogicOr,
+						Logic: LogicOr,
 						Filters: []*Filter{
 							{
 								Field:    "field2",
-								Operator: FilterOperatorIsNull,
+								Operator: OperatorIsNull,
 								Value:    nil,
 							},
 							{
 								Field:    "field3",
-								Operator: FilterOperatorIn,
+								Operator: OperatorIn,
 								Value:    []int64{1, 2, 3},
 							},
 						},
 					},
 					{
 						Field:    "field4",
-						Operator: FilterOperatorLike,
+						Operator: OperatorLike,
 						Value:    "value4",
 					},
 				},
@@ -3094,15 +2614,15 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: fmt.Sprintf(
 					"field1 %s %s %s (field2 %s %s field3 %s %s) %s field4 %s %s",
-					filterOperatorMap[FilterOperatorEqual],
+					filterOperatorMap[OperatorEqual],
 					fmt.Sprintf("%s2", placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					filterOperatorMap[FilterOperatorIsNull],
-					FilterLogicOr,
-					filterOperatorMap[FilterOperatorIn],
+					LogicAnd,
+					filterOperatorMap[OperatorIsNull],
+					LogicOr,
+					filterOperatorMap[OperatorIn],
 					fmt.Sprintf("(%s3, %s4, %s5)", placeholderMap[DialectPostgres], placeholderMap[DialectPostgres], placeholderMap[DialectPostgres]),
-					FilterLogicAnd,
-					fmt.Sprintf("i%s", filterOperatorMap[FilterOperatorLike]),
+					LogicAnd,
+					fmt.Sprintf("i%s", filterOperatorMap[OperatorLike]),
 					fmt.Sprintf("concat('%%', %s6, '%%')", placeholderMap[DialectPostgres]),
 				),
 				Args:  []interface{}{"other args value", "value1", 1, 2, 3, "value4"},
@@ -3177,11 +2697,11 @@ func TestFilter_ToSQLWithArgs(t *testing.T) {
 		{
 			Name: "invalid validation",
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    []string{"a", "b", "c"},
 					},
 				},
@@ -3195,17 +2715,17 @@ func TestFilter_ToSQLWithArgs(t *testing.T) {
 			}{
 				ConditionQuery: "",
 				Args:           []interface{}{},
-				Error:          fmt.Errorf("unsupported %s value type for operator %s", reflect.Slice.String(), FilterOperatorEqual),
+				Error:          fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflect.Slice.String(), OperatorEqual),
 			},
 		},
 		{
 			Name: "filter is valid",
 			Filter: &Filter{
-				Logic: FilterLogicAnd,
+				Logic: LogicAnd,
 				Filters: []*Filter{
 					{
 						Field:    "field1",
-						Operator: FilterOperatorEqual,
+						Operator: OperatorEqual,
 						Value:    "value1",
 					},
 				},

@@ -1,24 +1,21 @@
 package simple_query
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
 
 type SelectQuery struct {
-	Fields  []string
-	Table   string
-	Filter  *Filter
-	Sorts   []*Sort
-	maxTake uint64
-	Take    uint64
+	Fields []string
+	Table  string
+	Filter *Filter
+	Sorts  []*Sort
+	Take   uint64
 }
 
 func Select(fields ...string) *SelectQuery {
 	return &SelectQuery{
-		Fields:  fields,
-		maxTake: 100,
+		Fields: fields,
 	}
 }
 
@@ -44,25 +41,17 @@ func (s *SelectQuery) Limit(take uint64) *SelectQuery {
 
 func (s *SelectQuery) validate() error {
 	if len(s.Fields) == 0 {
-		return errors.New("fields is required")
+		return ErrFieldsIsRequired
 	}
 
-	for i := 0; i < len(s.Fields); i++ {
+	for i := range s.Fields {
 		if s.Fields[i] == "" {
-			return errors.New("field is required")
+			return ErrFieldIsRequired
 		}
 	}
 
 	if s.Table == "" {
-		return errors.New("table is required")
-	}
-
-	if s.Take == 0 {
-		return errors.New("take is required")
-	}
-
-	if s.Take > s.maxTake {
-		return fmt.Errorf("maximum take is %d", s.maxTake)
+		return ErrTableIsRequired
 	}
 
 	return nil
@@ -100,7 +89,7 @@ func (s *SelectQuery) ToSQLWithArgs(dialect Dialect) (string, []interface{}, err
 
 	if len(s.Sorts) > 0 {
 		orderByClause = []string{}
-		for i := 0; i < len(s.Sorts); i++ {
+		for i := range s.Sorts {
 			if s.Sorts[i] == nil {
 				continue
 			}
@@ -118,9 +107,11 @@ func (s *SelectQuery) ToSQLWithArgs(dialect Dialect) (string, []interface{}, err
 		}
 	}
 
-	args = append(args, s.Take)
-	placeholder = getPlaceholder(dialect, len(args), len(args))
-	query = fmt.Sprintf("%s limit %s", query, placeholder)
+	if s.Take > 0 {
+		args = append(args, s.Take)
+		placeholder = getPlaceholder(dialect, len(args), len(args))
+		query = fmt.Sprintf("%s limit %s", query, placeholder)
+	}
 
 	return query, args, nil
 }

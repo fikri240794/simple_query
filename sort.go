@@ -1,7 +1,6 @@
 package simple_query
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -26,7 +25,7 @@ func NewSort(field string, direction SortDirection) *Sort {
 
 func (s *Sort) validate() error {
 	if s.Field == "" {
-		return errors.New("field is required")
+		return ErrFieldIsRequired
 	}
 
 	return nil

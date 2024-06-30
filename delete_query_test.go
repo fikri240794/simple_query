@@ -1,7 +1,6 @@
 package simple_query
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 )
@@ -46,11 +45,11 @@ func TestDeleteQuery_Where(t *testing.T) {
 	expectation = &DeleteQuery{
 		Table: "table1",
 		Filter: &Filter{
-			Logic: FilterLogicAnd,
+			Logic: LogicAnd,
 			Filters: []*Filter{
 				{
 					Field:    "field1",
-					Operator: FilterOperatorEqual,
+					Operator: OperatorEqual,
 					Value:    "value1",
 				},
 			},
@@ -61,8 +60,8 @@ func TestDeleteQuery_Where(t *testing.T) {
 		From("table1").
 		Where(
 			NewFilter().
-				SetLogic(FilterLogicAnd).
-				AddFilter("field1", FilterOperatorEqual, "value1"),
+				SetLogic(LogicAnd).
+				AddFilter("field1", OperatorEqual, "value1"),
 		)
 
 	if expectation.Table != actual.Table {
@@ -87,25 +86,25 @@ func TestDeleteQuery_validate(t *testing.T) {
 		{
 			Name:        "table is empty",
 			DeleteQuery: &DeleteQuery{},
-			Expectation: errors.New("table is required"),
+			Expectation: ErrTableIsRequired,
 		},
 		{
 			Name: "filter is empty",
 			DeleteQuery: &DeleteQuery{
 				Table: "table1",
 			},
-			Expectation: errors.New("filter is required"),
+			Expectation: ErrFilterIsRequired,
 		},
 		{
 			Name: "delete query is valid",
 			DeleteQuery: &DeleteQuery{
 				Table: "table1",
 				Filter: &Filter{
-					Logic: FilterLogicAnd,
+					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
 							Field:    "field1",
-							Operator: FilterOperatorEqual,
+							Operator: OperatorEqual,
 							Value:    "value1",
 						},
 					},
@@ -165,7 +164,7 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("table is required"),
+				Error: ErrTableIsRequired,
 			},
 		},
 		{
@@ -181,7 +180,7 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("filter is required"),
+				Error: ErrFilterIsRequired,
 			},
 		},
 		{
@@ -189,7 +188,7 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 			DeleteQuery: &DeleteQuery{
 				Table: "table1",
 				Filter: &Filter{
-					Logic:   FilterLogicAnd,
+					Logic:   LogicAnd,
 					Filters: []*Filter{},
 				},
 			},
@@ -201,7 +200,7 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("filters is required"),
+				Error: ErrFiltersIsRequired,
 			},
 		},
 		{
@@ -209,11 +208,11 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 			DeleteQuery: &DeleteQuery{
 				Table: "table1",
 				Filter: &Filter{
-					Logic: FilterLogicAnd,
+					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
 							Field:    "field1",
-							Operator: FilterOperatorEqual,
+							Operator: OperatorEqual,
 							Value:    "value1",
 						},
 					},
@@ -235,11 +234,11 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 			DeleteQuery: &DeleteQuery{
 				Table: "table1",
 				Filter: &Filter{
-					Logic: FilterLogicAnd,
+					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
 							Field:    "field1",
-							Operator: FilterOperatorEqual,
+							Operator: OperatorEqual,
 							Value:    "value1",
 						},
 					},

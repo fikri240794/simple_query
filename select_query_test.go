@@ -13,8 +13,7 @@ func TestSelectQuery_Select(t *testing.T) {
 	)
 
 	expectation = &SelectQuery{
-		Fields:  []string{"field1", "field2", "field3"},
-		maxTake: 100,
+		Fields: []string{"field1", "field2", "field3"},
 	}
 
 	actual = Select("field1", "field2", "field3")
@@ -28,10 +27,6 @@ func TestSelectQuery_Select(t *testing.T) {
 			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
 		}
 	}
-
-	if expectation.maxTake != actual.maxTake {
-		t.Errorf("expectation max take is %d, got %d", expectation.maxTake, actual.maxTake)
-	}
 }
 
 func TestSelectQuery_From(t *testing.T) {
@@ -41,9 +36,8 @@ func TestSelectQuery_From(t *testing.T) {
 	)
 
 	expectation = &SelectQuery{
-		Fields:  []string{"field1", "field2", "field3"},
-		Table:   "table1",
-		maxTake: 100,
+		Fields: []string{"field1", "field2", "field3"},
+		Table:  "table1",
 	}
 
 	actual = Select("field1", "field2", "field3").
@@ -57,10 +51,6 @@ func TestSelectQuery_From(t *testing.T) {
 		if expectation.Fields[i] != actual.Fields[i] {
 			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
 		}
-	}
-
-	if expectation.maxTake != actual.maxTake {
-		t.Errorf("expectation max take is %d, got %d", expectation.maxTake, actual.maxTake)
 	}
 
 	if expectation.Table != actual.Table {
@@ -78,24 +68,23 @@ func TestSelectQuery_Where(t *testing.T) {
 		Fields: []string{"field1", "field2", "field3"},
 		Table:  "table1",
 		Filter: &Filter{
-			Logic: FilterLogicAnd,
+			Logic: LogicAnd,
 			Filters: []*Filter{
 				{
 					Field:    "field1",
-					Operator: FilterOperatorEqual,
+					Operator: OperatorEqual,
 					Value:    "value1",
 				},
 			},
 		},
-		maxTake: 100,
 	}
 
 	actual = Select("field1", "field2", "field3").
 		From("table1").
 		Where(
 			NewFilter().
-				SetLogic(FilterLogicAnd).
-				AddFilter("field1", FilterOperatorEqual, "value1"),
+				SetLogic(LogicAnd).
+				AddFilter("field1", OperatorEqual, "value1"),
 		)
 
 	if len(expectation.Fields) != len(actual.Fields) {
@@ -106,10 +95,6 @@ func TestSelectQuery_Where(t *testing.T) {
 		if expectation.Fields[i] != actual.Fields[i] {
 			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
 		}
-	}
-
-	if expectation.maxTake != actual.maxTake {
-		t.Errorf("expectation max take is %d, got %d", expectation.maxTake, actual.maxTake)
 	}
 
 	if expectation.Table != actual.Table {
@@ -140,7 +125,6 @@ func TestSelectQuery_OrderBy(t *testing.T) {
 				Direction: SortDirectionAscending,
 			},
 		},
-		maxTake: 100,
 	}
 
 	actual = Select("field1", "field2", "field3").
@@ -158,10 +142,6 @@ func TestSelectQuery_OrderBy(t *testing.T) {
 		if expectation.Fields[i] != actual.Fields[i] {
 			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
 		}
-	}
-
-	if expectation.maxTake != actual.maxTake {
-		t.Errorf("expectation max take is %d, got %d", expectation.maxTake, actual.maxTake)
 	}
 
 	if expectation.Table != actual.Table {
@@ -198,10 +178,9 @@ func TestSelectQuery_Limit(t *testing.T) {
 	)
 
 	expectation = &SelectQuery{
-		Fields:  []string{"field1", "field2", "field3"},
-		Table:   "table1",
-		maxTake: 100,
-		Take:    10,
+		Fields: []string{"field1", "field2", "field3"},
+		Table:  "table1",
+		Take:   10,
 	}
 
 	actual = Select("field1", "field2", "field3").
@@ -216,10 +195,6 @@ func TestSelectQuery_Limit(t *testing.T) {
 		if expectation.Fields[i] != actual.Fields[i] {
 			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
 		}
-	}
-
-	if expectation.maxTake != actual.maxTake {
-		t.Errorf("expectation max take is %d, got %d", expectation.maxTake, actual.maxTake)
 	}
 
 	if expectation.Table != actual.Table {
@@ -242,54 +217,30 @@ func TestSelectQuery_validate(t *testing.T) {
 		Expectation error
 	}{
 		{
-			Name: "fields is empty",
-			SelectQuery: &SelectQuery{
-				maxTake: 100,
-			},
+			Name:        "fields is empty",
+			SelectQuery: &SelectQuery{},
 			Expectation: errors.New("fields is required"),
 		},
 		{
 			Name: "field is empty",
 			SelectQuery: &SelectQuery{
-				Fields:  []string{""},
-				maxTake: 100,
+				Fields: []string{""},
 			},
 			Expectation: errors.New("field is required"),
 		},
 		{
 			Name: "table is empty",
 			SelectQuery: &SelectQuery{
-				Fields:  []string{"field1", "field2", "field3"},
-				maxTake: 100,
+				Fields: []string{"field1", "field2", "field3"},
 			},
 			Expectation: errors.New("table is required"),
 		},
 		{
-			Name: "take is empty",
-			SelectQuery: &SelectQuery{
-				Fields:  []string{"field1", "field2", "field3"},
-				Table:   "table1",
-				maxTake: 100,
-			},
-			Expectation: errors.New("take is required"),
-		},
-		{
-			Name: "take is greater than max take",
-			SelectQuery: &SelectQuery{
-				Fields:  []string{"field1", "field2", "field3"},
-				Table:   "table1",
-				maxTake: 100,
-				Take:    1000,
-			},
-			Expectation: errors.New("maximum take is 100"),
-		},
-		{
 			Name: "select query is valid",
 			SelectQuery: &SelectQuery{
-				Fields:  []string{"field1", "field2", "field3"},
-				Table:   "table1",
-				maxTake: 100,
-				Take:    10,
+				Fields: []string{"field1", "field2", "field3"},
+				Table:  "table1",
+				Take:   10,
 			},
 			Expectation: nil,
 		},
@@ -335,11 +286,9 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 		}
 	}{
 		{
-			Name: "fields is empty",
-			SelectQuery: &SelectQuery{
-				maxTake: 100,
-			},
-			Dialect: "",
+			Name:        "fields is empty",
+			SelectQuery: &SelectQuery{},
+			Dialect:     "",
 			Expectation: struct {
 				Query string
 				Args  []interface{}
@@ -353,8 +302,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 		{
 			Name: "field is empty",
 			SelectQuery: &SelectQuery{
-				Fields:  []string{""},
-				maxTake: 100,
+				Fields: []string{""},
 			},
 			Dialect: "",
 			Expectation: struct {
@@ -370,8 +318,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 		{
 			Name: "table is empty",
 			SelectQuery: &SelectQuery{
-				Fields:  []string{"field1", "field2", "field3"},
-				maxTake: 100,
+				Fields: []string{"field1", "field2", "field3"},
 			},
 			Dialect: "",
 			Expectation: struct {
@@ -385,53 +332,15 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			},
 		},
 		{
-			Name: "take is empty",
-			SelectQuery: &SelectQuery{
-				Fields:  []string{"field1", "field2", "field3"},
-				Table:   "table1",
-				maxTake: 100,
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: errors.New("take is required"),
-			},
-		},
-		{
-			Name: "take is greater than max take",
-			SelectQuery: &SelectQuery{
-				Fields:  []string{"field1", "field2", "field3"},
-				Table:   "table1",
-				maxTake: 100,
-				Take:    1000,
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: errors.New("maximum take is 100"),
-			},
-		},
-		{
 			Name: fmt.Sprintf("dialect %s with invalid filter", DialectMySQL),
 			SelectQuery: &SelectQuery{
 				Fields: []string{"field1", "field2", "field3"},
 				Table:  "table1",
 				Filter: &Filter{
-					Logic:   FilterLogicAnd,
+					Logic:   LogicAnd,
 					Filters: []*Filter{},
 				},
-				Take:    100,
-				maxTake: 100,
+				Take: 100,
 			},
 			Dialect: DialectMySQL,
 			Expectation: struct {
@@ -455,8 +364,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 						Direction: SortDirectionDescending,
 					},
 				},
-				Take:    100,
-				maxTake: 100,
+				Take: 100,
 			},
 			Dialect: DialectMySQL,
 			Expectation: struct {
@@ -477,8 +385,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				Sorts: []*Sort{
 					nil,
 				},
-				Take:    100,
-				maxTake: 100,
+				Take: 100,
 			},
 			Dialect: DialectMySQL,
 			Expectation: struct {
@@ -494,10 +401,9 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s with take", DialectMySQL),
 			SelectQuery: &SelectQuery{
-				Fields:  []string{"field1", "field2", "field3"},
-				Table:   "table1",
-				Take:    10,
-				maxTake: 100,
+				Fields: []string{"field1", "field2", "field3"},
+				Table:  "table1",
+				Take:   10,
 			},
 			Dialect: DialectMySQL,
 			Expectation: struct {
@@ -516,11 +422,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				Fields: []string{"field1", "field2", "field3"},
 				Table:  "table1",
 				Filter: &Filter{
-					Logic: FilterLogicAnd,
+					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
 							Field:    "field1",
-							Operator: FilterOperatorEqual,
+							Operator: OperatorEqual,
 							Value:    "value1",
 						},
 					},
@@ -531,8 +437,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 						Direction: SortDirectionDescending,
 					},
 				},
-				Take:    10,
-				maxTake: 100,
+				Take: 10,
 			},
 			Dialect: DialectMySQL,
 			Expectation: struct {
@@ -551,17 +456,16 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				Fields: []string{"field1", "field2", "field3"},
 				Table:  "table1",
 				Filter: &Filter{
-					Logic: FilterLogicAnd,
+					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
 							Field:    "field1",
-							Operator: FilterOperatorEqual,
+							Operator: OperatorEqual,
 							Value:    "value1",
 						},
 					},
 				},
-				Take:    10,
-				maxTake: 100,
+				Take: 10,
 			},
 			Dialect: DialectMySQL,
 			Expectation: struct {
@@ -585,8 +489,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 						Direction: SortDirectionDescending,
 					},
 				},
-				Take:    10,
-				maxTake: 100,
+				Take: 10,
 			},
 			Dialect: DialectMySQL,
 			Expectation: struct {
@@ -605,11 +508,10 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				Fields: []string{"field1", "field2", "field3"},
 				Table:  "table1",
 				Filter: &Filter{
-					Logic:   FilterLogicAnd,
+					Logic:   LogicAnd,
 					Filters: []*Filter{},
 				},
-				Take:    100,
-				maxTake: 100,
+				Take: 100,
 			},
 			Dialect: DialectPostgres,
 			Expectation: struct {
@@ -633,8 +535,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 						Direction: SortDirectionDescending,
 					},
 				},
-				Take:    100,
-				maxTake: 100,
+				Take: 100,
 			},
 			Dialect: DialectPostgres,
 			Expectation: struct {
@@ -655,8 +556,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				Sorts: []*Sort{
 					nil,
 				},
-				Take:    100,
-				maxTake: 100,
+				Take: 100,
 			},
 			Dialect: DialectPostgres,
 			Expectation: struct {
@@ -672,10 +572,9 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 		{
 			Name: fmt.Sprintf("dialect %s with take", DialectPostgres),
 			SelectQuery: &SelectQuery{
-				Fields:  []string{"field1", "field2", "field3"},
-				Table:   "table1",
-				Take:    10,
-				maxTake: 100,
+				Fields: []string{"field1", "field2", "field3"},
+				Table:  "table1",
+				Take:   10,
 			},
 			Dialect: DialectPostgres,
 			Expectation: struct {
@@ -694,11 +593,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				Fields: []string{"field1", "field2", "field3"},
 				Table:  "table1",
 				Filter: &Filter{
-					Logic: FilterLogicAnd,
+					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
 							Field:    "field1",
-							Operator: FilterOperatorEqual,
+							Operator: OperatorEqual,
 							Value:    "value1",
 						},
 					},
@@ -709,8 +608,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 						Direction: SortDirectionDescending,
 					},
 				},
-				Take:    10,
-				maxTake: 100,
+				Take: 10,
 			},
 			Dialect: DialectPostgres,
 			Expectation: struct {
@@ -729,17 +627,16 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				Fields: []string{"field1", "field2", "field3"},
 				Table:  "table1",
 				Filter: &Filter{
-					Logic: FilterLogicAnd,
+					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
 							Field:    "field1",
-							Operator: FilterOperatorEqual,
+							Operator: OperatorEqual,
 							Value:    "value1",
 						},
 					},
 				},
-				Take:    10,
-				maxTake: 100,
+				Take: 10,
 			},
 			Dialect: DialectPostgres,
 			Expectation: struct {
@@ -763,8 +660,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 						Direction: SortDirectionDescending,
 					},
 				},
-				Take:    10,
-				maxTake: 100,
+				Take: 10,
 			},
 			Dialect: DialectPostgres,
 			Expectation: struct {

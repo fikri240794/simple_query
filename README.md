@@ -28,33 +28,33 @@ func main() {
 		From("table1").
 		Where(
 			simple_query.NewFilter().
-				SetLogic(simple_query.FilterLogicAnd).
+				SetLogic(simple_query.LogicAnd).
 				AddFilters(
 					simple_query.NewFilter().
-						SetCondition("field1", simple_query.FilterOperatorEqual, "value1"),
+						SetCondition("field1", simple_query.OperatorEqual, "value1"),
 					simple_query.NewFilter().
-						SetCondition("field2", simple_query.FilterOperatorNotEqual, true),
+						SetCondition("field2", simple_query.OperatorNotEqual, true),
 					simple_query.NewFilter().
-						SetLogic(simple_query.FilterLogicOr).
-						AddFilter("field3", simple_query.FilterOperatorGreaterThan, 50).
-						AddFilter("field4", simple_query.FilterOperatorGreaterThanOrEqual, 75.4),
+						SetLogic(simple_query.LogicOr).
+						AddFilter("field3", simple_query.OperatorGreaterThan, 50).
+						AddFilter("field4", simple_query.OperatorGreaterThanOrEqual, 75.4),
 					simple_query.NewFilter().
-						SetLogic(simple_query.FilterLogicOr).
-						AddFilter("field5", simple_query.FilterOperatorLessThan, "value5").
-						AddFilter("field6", simple_query.FilterOperatorLessThanOrEqual, "value6"),
+						SetLogic(simple_query.LogicOr).
+						AddFilter("field5", simple_query.OperatorLessThan, "value5").
+						AddFilter("field6", simple_query.OperatorLessThanOrEqual, "value6"),
 					simple_query.NewFilter().
-						SetLogic(simple_query.FilterLogicAnd).
-						AddFilter("field7", simple_query.FilterOperatorIsNull, nil).
-						AddFilter("field8", simple_query.FilterOperatorIsNotNull, nil),
+						SetLogic(simple_query.LogicAnd).
+						AddFilter("field7", simple_query.OperatorIsNull, nil).
+						AddFilter("field8", simple_query.OperatorIsNotNull, nil),
 					simple_query.NewFilter().
-						SetLogic(simple_query.FilterLogicOr).
+						SetLogic(simple_query.LogicOr).
 						AddFilters(
 							simple_query.NewFilter().
-								SetLogic(simple_query.FilterLogicAnd).
-								AddFilter("field9", simple_query.FilterOperatorIn, []string{"value9.1", "value9.2", "value9.3"}).
-								AddFilter("field10", simple_query.FilterOperatorNotIn, [3]float64{10.1, 10.2, 10.3}),
-							simple_query.NewFilter().SetCondition("field11", simple_query.FilterOperatorLike, "value11"),
-							simple_query.NewFilter().SetCondition("field12", simple_query.FilterOperatorNotLike, "value12"),
+								SetLogic(simple_query.LogicAnd).
+								AddFilter("field9", simple_query.OperatorIn, []string{"value9.1", "value9.2", "value9.3"}).
+								AddFilter("field10", simple_query.OperatorNotIn, [3]float64{10.1, 10.2, 10.3}),
+							simple_query.NewFilter().SetCondition("field11", simple_query.OperatorLike, "value11"),
+							simple_query.NewFilter().SetCondition("field12", simple_query.OperatorNotLike, "value12"),
 						),
 				),
 		).
@@ -230,8 +230,8 @@ func main() {
 		Set("field5", true).
 		Where(
 			simple_query.NewFilter().
-				SetLogic(simple_query.FilterLogicAnd).
-				AddFilter("field1", simple_query.FilterOperatorEqual, "value1"),
+				SetLogic(simple_query.LogicAnd).
+				AddFilter("field1", simple_query.OperatorEqual, "value1"),
 		)
 
 	query, args, err = updateQuery.ToSQLWithArgs(simple_query.DialectPostgres)
@@ -285,8 +285,8 @@ func main() {
 		From("table1").
 		Where(
 			simple_query.NewFilter().
-				SetLogic(simple_query.FilterLogicAnd).
-				AddFilter("field1", simple_query.FilterOperatorEqual, "value1"),
+				SetLogic(simple_query.LogicAnd).
+				AddFilter("field1", simple_query.OperatorEqual, "value1"),
 		)
 
 	query, args, err = deleteQuery.ToSQLWithArgs(simple_query.DialectPostgres)

@@ -1,7 +1,6 @@
 package simple_query
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -26,11 +25,11 @@ func (d *DeleteQuery) Where(filter *Filter) *DeleteQuery {
 
 func (d *DeleteQuery) validate() error {
 	if d.Table == "" {
-		return errors.New("table is required")
+		return ErrTableIsRequired
 	}
 
 	if d.Filter == nil {
-		return errors.New("filter is required")
+		return ErrFilterIsRequired
 	}
 
 	return nil

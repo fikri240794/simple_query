@@ -3,7 +3,6 @@ package simple_query
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"testing"
 )
 
@@ -183,7 +182,7 @@ func TestInsertQuery_validate(t *testing.T) {
 		{
 			Name:        "table is empty",
 			InsertQuery: &InsertQuery{},
-			Expectation: errors.New("table is required"),
+			Expectation: ErrTableIsRequired,
 		},
 		{
 			Name: "fields is empty",
@@ -191,7 +190,7 @@ func TestInsertQuery_validate(t *testing.T) {
 				Table:        "table1",
 				FieldsValues: map[string][]interface{}{},
 			},
-			Expectation: errors.New("fields is required"),
+			Expectation: ErrFieldsIsRequired,
 		},
 		{
 			Name: "field is empty",
@@ -201,7 +200,7 @@ func TestInsertQuery_validate(t *testing.T) {
 					"": {"value1"},
 				},
 			},
-			Expectation: errors.New("field is required"),
+			Expectation: ErrFieldIsRequired,
 		},
 		{
 			Name: "values is empty",
@@ -211,7 +210,7 @@ func TestInsertQuery_validate(t *testing.T) {
 					"field1": {},
 				},
 			},
-			Expectation: errors.New("values is required"),
+			Expectation: ErrValuesIsRequired,
 		},
 		{
 			Name: "value length is not equal to fields length",
@@ -222,37 +221,7 @@ func TestInsertQuery_validate(t *testing.T) {
 					"field2": {1},
 				},
 			},
-			Expectation: errors.New("value length is not equal to fields length"),
-		},
-		{
-			Name: "value kind is not allowed",
-			InsertQuery: &InsertQuery{
-				Table: "table1",
-				FieldsValues: map[string][]interface{}{
-					"field1": {map[string]string{"key1": "value1"}},
-				},
-			},
-			Expectation: fmt.Errorf("unsupported %s value type", reflect.Map.String()),
-		},
-		{
-			Name: "value kind is array",
-			InsertQuery: &InsertQuery{
-				Table: "table1",
-				FieldsValues: map[string][]interface{}{
-					"field1": {[3]string{"value1", "value2", "value3"}},
-				},
-			},
-			Expectation: fmt.Errorf("unsupported %s value type", reflect.Array.String()),
-		},
-		{
-			Name: "value kind is slice",
-			InsertQuery: &InsertQuery{
-				Table: "table1",
-				FieldsValues: map[string][]interface{}{
-					"field1": {[]string{"value1", "value2", "value3"}},
-				},
-			},
-			Expectation: fmt.Errorf("unsupported %s value type", reflect.Slice.String()),
+			Expectation: ErrValueLengthIsNotEqualToFieldsLength,
 		},
 		{
 			Name: "insert query is valid",
@@ -317,7 +286,7 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("table is required"),
+				Error: ErrTableIsRequired,
 			},
 		},
 		{
@@ -334,7 +303,7 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("fields is required"),
+				Error: ErrFieldsIsRequired,
 			},
 		},
 		{
@@ -373,45 +342,7 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("value length is not equal to fields length"),
-			},
-		},
-		{
-			Name: "value kind is array",
-			InsertQuery: &InsertQuery{
-				Table: "table1",
-				FieldsValues: map[string][]interface{}{
-					"field1": {[3]string{"value1", "value2", "value3"}},
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: fmt.Errorf("unsupported %s value type", reflect.Array.String()),
-			},
-		},
-		{
-			Name: "value kind is slice",
-			InsertQuery: &InsertQuery{
-				Table: "table1",
-				FieldsValues: map[string][]interface{}{
-					"field1": {[]string{"value1", "value2", "value3"}},
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: fmt.Errorf("unsupported %s value type", reflect.Slice.String()),
+				Error: ErrValueLengthIsNotEqualToFieldsLength,
 			},
 		},
 		{
@@ -431,7 +362,7 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("dialect is required"),
+				Error: ErrDialectIsRequired,
 			},
 		},
 		{

@@ -1,9 +1,7 @@
 package simple_query
 
 import (
-	"errors"
 	"fmt"
-	"reflect"
 	"strings"
 )
 
@@ -32,29 +30,21 @@ func (u *UpdateQuery) Where(filter *Filter) *UpdateQuery {
 
 func (u *UpdateQuery) validate() error {
 	if u.Table == "" {
-		return errors.New("table is required")
+		return ErrTableIsRequired
 	}
 
 	if len(u.FieldsValue) == 0 {
-		return errors.New("fields is required")
+		return ErrFieldsIsRequired
 	}
 
-	for field, value := range u.FieldsValue {
+	for field := range u.FieldsValue {
 		if field == "" {
-			return errors.New("field is required")
-		}
-
-		if value != nil {
-			var reflectValue reflect.Value = reflect.ValueOf(value)
-
-			if !allowedKindValue[reflectValue.Kind()] || reflectValue.Kind() == reflect.Array || reflectValue.Kind() == reflect.Slice {
-				return fmt.Errorf("unsupported %s value type", reflectValue.Kind().String())
-			}
+			return ErrFieldIsRequired
 		}
 	}
 
 	if u.Filter == nil {
-		return errors.New("filter is required")
+		return ErrFilterIsRequired
 	}
 
 	return nil
