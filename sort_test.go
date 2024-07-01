@@ -52,7 +52,7 @@ func TestSort_validate(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var actual error = testCases[i].Sort.validate()
 
@@ -127,7 +127,7 @@ func TestSort_ToSQL(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var (
 				actualQuery string

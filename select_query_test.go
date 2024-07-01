@@ -22,7 +22,7 @@ func TestSelectQuery_Select(t *testing.T) {
 		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
 	}
 
-	for i := 0; i < len(expectation.Fields); i++ {
+	for i := range expectation.Fields {
 		if expectation.Fields[i] != actual.Fields[i] {
 			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
 		}
@@ -47,7 +47,7 @@ func TestSelectQuery_From(t *testing.T) {
 		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
 	}
 
-	for i := 0; i < len(expectation.Fields); i++ {
+	for i := range expectation.Fields {
 		if expectation.Fields[i] != actual.Fields[i] {
 			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
 		}
@@ -91,7 +91,7 @@ func TestSelectQuery_Where(t *testing.T) {
 		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
 	}
 
-	for i := 0; i < len(expectation.Fields); i++ {
+	for i := range expectation.Fields {
 		if expectation.Fields[i] != actual.Fields[i] {
 			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
 		}
@@ -138,7 +138,7 @@ func TestSelectQuery_OrderBy(t *testing.T) {
 		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
 	}
 
-	for i := 0; i < len(expectation.Fields); i++ {
+	for i := range expectation.Fields {
 		if expectation.Fields[i] != actual.Fields[i] {
 			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
 		}
@@ -152,7 +152,7 @@ func TestSelectQuery_OrderBy(t *testing.T) {
 		t.Errorf("expectation length of sorts is %d, got %d", len(expectation.Sorts), len(actual.Sorts))
 	}
 
-	for i := 0; i < len(expectation.Sorts); i++ {
+	for i := range expectation.Sorts {
 		if expectation.Sorts[i] == nil && actual.Sorts[i] != nil {
 			t.Errorf("expectation element of sorts is nil, got %v", actual.Sorts[i])
 		}
@@ -191,7 +191,7 @@ func TestSelectQuery_Limit(t *testing.T) {
 		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
 	}
 
-	for i := 0; i < len(expectation.Fields); i++ {
+	for i := range expectation.Fields {
 		if expectation.Fields[i] != actual.Fields[i] {
 			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
 		}
@@ -246,7 +246,7 @@ func TestSelectQuery_validate(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var actual error = testCases[i].SelectQuery.validate()
 
@@ -675,7 +675,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var (
 				actualQuery string
@@ -705,7 +705,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				t.Errorf("expectation length of args is %d, got %d", len(testCases[i].Expectation.Args), len(actualArgs))
 			}
 
-			for j := 0; j < len(testCases[i].Expectation.Args); j++ {
+			for j := range testCases[i].Expectation.Args {
 				if !deepEqual(testCases[i].Expectation.Args[j], actualArgs[j]) {
 					t.Errorf("expectation element of args is %v, got %v", testCases[i].Expectation.Args[j], actualArgs[j])
 				}

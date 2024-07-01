@@ -28,10 +28,8 @@ func testFilter_FilterEquality(t *testing.T, expectation, actual *Filter) {
 		t.Errorf("expectation length of filters is %d, got %d", len(expectation.Filters), len(actual.Filters))
 	}
 
-	if len(expectation.Filters) > 0 {
-		for i := 0; i < len(expectation.Filters); i++ {
-			testFilter_FilterEquality(t, expectation.Filters[i], actual.Filters[i])
-		}
+	for i := range expectation.Filters {
+		testFilter_FilterEquality(t, expectation.Filters[i], actual.Filters[i])
 	}
 }
 
@@ -65,7 +63,7 @@ func TestFilter_SetLogic(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var actual *Filter = NewFilter().
 				SetLogic(testCases[i].Logic)
@@ -222,7 +220,7 @@ func TestFilter_SetCondition(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var actual *Filter = NewFilter().
 				SetCondition(
@@ -432,7 +430,7 @@ func TestFilter_AddFilter(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var actual *Filter = NewFilter().
 				AddFilter(
@@ -662,7 +660,7 @@ func TestFilter_AddFilters(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var actual *Filter = NewFilter().
 				AddFilters(testCases[i].Filter)
@@ -864,7 +862,7 @@ func TestFilter_validate(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var actual error = testCases[i].Filter.validate()
 
@@ -2631,7 +2629,7 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var (
 				actualConditionQuery string
@@ -2662,7 +2660,7 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 					t.Errorf("expectation args lenght is %d, got %d", len(testCases[i].Expectation.Args), len(actualArgs))
 				}
 
-				for x := 0; x < len(testCases[i].Expectation.Args); x++ {
+				for x := range testCases[i].Expectation.Args {
 					if !deepEqual(testCases[i].Expectation.Args[x], actualArgs[x]) {
 						t.Errorf("expectation element of args is %v, got %v", testCases[i].Expectation.Args[x], actualArgs[x])
 					}
@@ -2744,7 +2742,7 @@ func TestFilter_ToSQLWithArgs(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var (
 				actualConditionQuery string
@@ -2775,7 +2773,7 @@ func TestFilter_ToSQLWithArgs(t *testing.T) {
 					t.Errorf("expectation args lenght is %d, got %d", len(testCases[i].Expectation.Args), len(actualArgs))
 				}
 
-				for x := 0; x < len(testCases[i].Expectation.Args); x++ {
+				for x := range testCases[i].Expectation.Args {
 					if !deepEqual(testCases[i].Expectation.Args[x], actualArgs[x]) {
 						t.Errorf("expectation element of args is %v, got %v", testCases[i].Expectation.Args[x], actualArgs[x])
 					}

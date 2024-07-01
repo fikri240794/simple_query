@@ -72,7 +72,7 @@ func TestInsertQuery_Value(t *testing.T) {
 		if len(actual.FieldsValues[field]) != len(values) {
 			t.Errorf("expectation length of field values is %d, got %d", len(expectation.FieldsValues), len(actual.FieldsValues))
 		}
-		for i := 0; i < len(values); i++ {
+		for i := range values {
 			if !deepEqual(values[i], actual.FieldsValues[field][i]) {
 				t.Errorf("expectation element of values is %v, got %v", values[i], actual.FieldsValues[field][i])
 			}
@@ -129,7 +129,7 @@ func TestInsertQuery_getColumnsAndRowsValues(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var (
 				actualColumns   []string
@@ -144,7 +144,7 @@ func TestInsertQuery_getColumnsAndRowsValues(t *testing.T) {
 				t.Errorf("expectation length of column is %d, got %d", len(testCases[i].ExpectationColumns), len(actualColumns))
 			}
 
-			for j := 0; j < len(testCases[i].ExpectationColumns); j++ {
+			for j := range testCases[i].ExpectationColumns {
 				if testCases[i].ExpectationColumns[j] != actualColumns[j] {
 					t.Errorf("expectation column is %s, got %s", testCases[i].ExpectationColumns[j], actualColumns[j])
 				}
@@ -154,12 +154,12 @@ func TestInsertQuery_getColumnsAndRowsValues(t *testing.T) {
 				t.Errorf("expectation length of row is %d, got %d", len(testCases[i].ExpectationRowValues), len(actualRowValues))
 			}
 
-			for j := 0; j < len(testCases[i].ExpectationRowValues); j++ {
+			for j := range testCases[i].ExpectationRowValues {
 				if len(testCases[i].ExpectationRowValues[j]) != len(actualRowValues[j]) {
 					t.Errorf("expectation length of values is %d, got %d", len(testCases[i].ExpectationRowValues[j]), len(actualRowValues[j]))
 				}
 
-				for k := 0; k < len(testCases[i].ExpectationRowValues[j]); k++ {
+				for k := range testCases[i].ExpectationRowValues[j] {
 					if !deepEqual(testCases[i].ExpectationRowValues[j][k], actualRowValues[j][k]) {
 						t.Errorf("expectation value is %v, got %v", testCases[i].ExpectationRowValues[j][k], actualRowValues[j][k])
 					}
@@ -236,7 +236,7 @@ func TestInsertQuery_validate(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var actualErr error = testCases[i].InsertQuery.validate()
 
@@ -407,7 +407,7 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var (
 				actualQuery string
@@ -438,7 +438,7 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 					t.Errorf("expectation length of args is %d, got %d", len(testCases[i].Expectation.Args), len(actualArgs))
 				}
 
-				for j := 0; j < len(testCases[i].Expectation.Args); j++ {
+				for j := range testCases[i].Expectation.Args {
 					if !deepEqual(testCases[i].Expectation.Args[j], actualArgs[j]) {
 						t.Errorf("expectation element of args is %v, got %v", testCases[i].Expectation.Args[j], actualArgs[j])
 					}

@@ -78,7 +78,7 @@ func Test_getPlaceholder(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var actual string = getPlaceholder(testCases[i].Dialect, testCases[i].StartIdx, testCases[i].EndIdx)
 			if testCases[i].Expectation != actual {
@@ -115,39 +115,6 @@ func Test_typedSliceToInterfaceSlice(t *testing.T) {
 				Error:  fmt.Errorf("unsupported %s value type", reflect.String.String()),
 			},
 		},
-		// {
-		// 	Name:  "kind of element value is not allowed",
-		// 	Value: []map[string]string{{"key1": "value1"}},
-		// 	Expectation: struct {
-		// 		Values []interface{}
-		// 		Error  error
-		// 	}{
-		// 		Values: nil,
-		// 		Error:  fmt.Errorf("unsupported %s type of element value", reflect.Map.String()),
-		// 	},
-		// },
-		// {
-		// 	Name:  fmt.Sprintf("kind of element value is %s", reflect.Slice.String()),
-		// 	Value: [][]string{{"value1", "value2", "value3"}},
-		// 	Expectation: struct {
-		// 		Values []interface{}
-		// 		Error  error
-		// 	}{
-		// 		Values: nil,
-		// 		Error:  fmt.Errorf("unsupported %s type of element value", reflect.Slice.String()),
-		// 	},
-		// },
-		// {
-		// 	Name:  fmt.Sprintf("kind of element value is %s", reflect.Array.String()),
-		// 	Value: [][3]string{{"value1", "value2", "value3"}},
-		// 	Expectation: struct {
-		// 		Values []interface{}
-		// 		Error  error
-		// 	}{
-		// 		Values: nil,
-		// 		Error:  fmt.Errorf("unsupported %s type of element value", reflect.Array.String()),
-		// 	},
-		// },
 		{
 			Name:  "slice of string to slice of interface",
 			Value: []string{"value1", "value2", "value3"},
@@ -161,7 +128,7 @@ func Test_typedSliceToInterfaceSlice(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var (
 				actualValues []interface{}
@@ -187,7 +154,7 @@ func Test_typedSliceToInterfaceSlice(t *testing.T) {
 					t.Errorf("expectation values length is %d, got %d", len(testCases[i].Expectation.Values), len(actualValues))
 				}
 
-				for x := 0; x < len(testCases[i].Expectation.Values); x++ {
+				for x := range testCases[i].Expectation.Values {
 					if !deepEqual(testCases[i].Expectation.Values[x], actualValues[x]) {
 						t.Errorf("expectation element slice of interface is %v, got %v", testCases[i].Expectation.Values[x], actualValues[x])
 					}

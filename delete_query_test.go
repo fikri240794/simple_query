@@ -114,7 +114,7 @@ func TestDeleteQuery_validate(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var actual error = testCases[i].DeleteQuery.validate()
 
@@ -257,7 +257,7 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testCases); i++ {
+	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
 			var (
 				actualQuery string
@@ -287,7 +287,7 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 				t.Errorf("expectation length of args is %d, got %d", len(testCases[i].Expectation.Args), len(actualArgs))
 			}
 
-			for j := 0; j < len(testCases[i].Expectation.Args); j++ {
+			for j := range testCases[i].Expectation.Args {
 				if !deepEqual(testCases[i].Expectation.Args[j], actualArgs[j]) {
 					t.Errorf("expectation element of args is %v, got %v", testCases[i].Expectation.Args[j], actualArgs[i])
 				}
