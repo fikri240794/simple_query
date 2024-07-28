@@ -1,7 +1,6 @@
 package simple_query
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 )
@@ -172,20 +171,30 @@ func TestInsertQuery_getColumnsAndRowsValues(t *testing.T) {
 func TestInsertQuery_validate(t *testing.T) {
 	var testCases []struct {
 		Name        string
+		Dialect     Dialect
 		InsertQuery *InsertQuery
 		Expectation error
 	} = []struct {
 		Name        string
+		Dialect     Dialect
 		InsertQuery *InsertQuery
 		Expectation error
 	}{
 		{
+			Name:        "dialect is empty",
+			Dialect:     "",
+			InsertQuery: &InsertQuery{},
+			Expectation: ErrDialectIsRequired,
+		},
+		{
 			Name:        "table is empty",
+			Dialect:     DialectPostgres,
 			InsertQuery: &InsertQuery{},
 			Expectation: ErrTableIsRequired,
 		},
 		{
-			Name: "fields is empty",
+			Name:    "fields is empty",
+			Dialect: DialectPostgres,
 			InsertQuery: &InsertQuery{
 				Table:        "table1",
 				FieldsValues: map[string][]interface{}{},
@@ -193,7 +202,8 @@ func TestInsertQuery_validate(t *testing.T) {
 			Expectation: ErrFieldsIsRequired,
 		},
 		{
-			Name: "field is empty",
+			Name:    "field is empty",
+			Dialect: DialectPostgres,
 			InsertQuery: &InsertQuery{
 				Table: "table1",
 				FieldsValues: map[string][]interface{}{
@@ -203,7 +213,8 @@ func TestInsertQuery_validate(t *testing.T) {
 			Expectation: ErrFieldIsRequired,
 		},
 		{
-			Name: "values is empty",
+			Name:    "values is empty",
+			Dialect: DialectPostgres,
 			InsertQuery: &InsertQuery{
 				Table: "table1",
 				FieldsValues: map[string][]interface{}{
@@ -213,7 +224,8 @@ func TestInsertQuery_validate(t *testing.T) {
 			Expectation: ErrValuesIsRequired,
 		},
 		{
-			Name: "value length is not equal to fields length",
+			Name:    "value length is not equal to fields length",
+			Dialect: DialectPostgres,
 			InsertQuery: &InsertQuery{
 				Table: "table1",
 				FieldsValues: map[string][]interface{}{
@@ -224,7 +236,8 @@ func TestInsertQuery_validate(t *testing.T) {
 			Expectation: ErrValueLengthIsNotEqualToFieldsLength,
 		},
 		{
-			Name: "insert query is valid",
+			Name:    "insert query is valid",
+			Dialect: DialectPostgres,
 			InsertQuery: &InsertQuery{
 				Table: "table1",
 				FieldsValues: map[string][]interface{}{
@@ -238,7 +251,7 @@ func TestInsertQuery_validate(t *testing.T) {
 
 	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
-			var actualErr error = testCases[i].InsertQuery.validate()
+			var actualErr error = testCases[i].InsertQuery.validate(testCases[i].Dialect)
 
 			if testCases[i].Expectation != nil && actualErr == nil {
 				t.Error("expectation error is not nil, got nil")
@@ -278,7 +291,7 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 		{
 			Name:        "table is empty",
 			InsertQuery: &InsertQuery{},
-			Dialect:     "",
+			Dialect:     DialectPostgres,
 			Expectation: struct {
 				Query string
 				Args  []interface{}
@@ -287,82 +300,6 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 				Query: "",
 				Args:  nil,
 				Error: ErrTableIsRequired,
-			},
-		},
-		{
-			Name: "fields is empty",
-			InsertQuery: &InsertQuery{
-				Table:        "table1",
-				FieldsValues: map[string][]interface{}{},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: ErrFieldsIsRequired,
-			},
-		},
-		{
-			Name: "values is empty",
-			InsertQuery: &InsertQuery{
-				Table: "table1",
-				FieldsValues: map[string][]interface{}{
-					"field1": {},
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: errors.New("values is required"),
-			},
-		},
-		{
-			Name: "value length is not equal to fields length",
-			InsertQuery: &InsertQuery{
-				Table: "table1",
-				FieldsValues: map[string][]interface{}{
-					"field1": {"value1", "value2"},
-					"field2": {1},
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: ErrValueLengthIsNotEqualToFieldsLength,
-			},
-		},
-		{
-			Name: "dialect is empty",
-			InsertQuery: &InsertQuery{
-				Table: "table1",
-				FieldsValues: map[string][]interface{}{
-					"field1": {"value1", "value2"},
-					"field2": {1, 2},
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: ErrDialectIsRequired,
 			},
 		},
 		{

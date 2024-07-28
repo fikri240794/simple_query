@@ -1,10 +1,59 @@
 package simple_query
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 )
+
+func testSelectQuery_SelectQueryEquality(t *testing.T, expectation, actual *SelectQuery) {
+	if len(expectation.Fields) != len(actual.Fields) {
+		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
+	} else {
+		for i := range expectation.Fields {
+			if !deepEqual(expectation.Fields[i], actual.Fields[i]) {
+				t.Errorf("expectation element of fields is %+v, got %+v", expectation.Fields[i], actual.Fields[i])
+			}
+		}
+	}
+
+	if expectation.Table != nil && actual.Table == nil {
+		t.Errorf("expectation table is %+v, got nil", expectation.Table)
+	}
+	if expectation.Table == nil && actual.Table != nil {
+		t.Errorf("expectation table is nil, got %+v", actual.Table)
+	}
+	if !deepEqual(expectation.Table, actual.Table) {
+		t.Errorf("expectation table is %+v, got %+v", expectation.Table, actual.Table)
+	}
+
+	if expectation.Filter != nil && actual.Filter == nil {
+		t.Errorf("expectation filter is %+v, got nil", expectation.Filter)
+	}
+	if expectation.Filter == nil && actual.Filter != nil {
+		t.Errorf("expectation filter is nil, got %+v", actual.Filter)
+	}
+	if !deepEqual(expectation.Filter, actual.Filter) {
+		t.Errorf("expectation table is %+v, got %+v", expectation.Filter, actual.Filter)
+	}
+
+	if len(expectation.Sorts) != len(actual.Sorts) {
+		t.Errorf("expectation length of sorts is %d, got %d", len(expectation.Sorts), len(actual.Sorts))
+	} else {
+		for i := range expectation.Sorts {
+			if !deepEqual(expectation.Sorts[i], actual.Sorts[i]) {
+				t.Errorf("expectation element of sorts is %+v, got %+v", expectation.Sorts[i], actual.Sorts[i])
+			}
+		}
+	}
+
+	if expectation.Take != actual.Take {
+		t.Errorf("expectation take is %d, got %d", expectation.Take, actual.Take)
+	}
+
+	if expectation.Alias != actual.Alias {
+		t.Errorf("expectation alias is %s, got %s", expectation.Alias, actual.Alias)
+	}
+}
 
 func TestSelectQuery_Select(t *testing.T) {
 	var (
@@ -13,20 +62,22 @@ func TestSelectQuery_Select(t *testing.T) {
 	)
 
 	expectation = &SelectQuery{
-		Fields: []string{"field1", "field2", "field3"},
+		Fields: []*Field{
+			{
+				Column: "field1",
+			},
+			{
+				Column: "field2",
+			},
+			{
+				Column: "field3",
+			},
+		},
 	}
 
-	actual = Select("field1", "field2", "field3")
+	actual = Select(NewField("field1"), NewField("field2"), NewField("field3"))
 
-	if len(expectation.Fields) != len(actual.Fields) {
-		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
-	}
-
-	for i := range expectation.Fields {
-		if expectation.Fields[i] != actual.Fields[i] {
-			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
-		}
-	}
+	testSelectQuery_SelectQueryEquality(t, expectation, actual)
 }
 
 func TestSelectQuery_From(t *testing.T) {
@@ -36,26 +87,26 @@ func TestSelectQuery_From(t *testing.T) {
 	)
 
 	expectation = &SelectQuery{
-		Fields: []string{"field1", "field2", "field3"},
-		Table:  "table1",
+		Fields: []*Field{
+			{
+				Column: "field1",
+			},
+			{
+				Column: "field2",
+			},
+			{
+				Column: "field3",
+			},
+		},
+		Table: &Table{
+			Name: "table1",
+		},
 	}
 
-	actual = Select("field1", "field2", "field3").
-		From("table1")
+	actual = Select(NewField("field1"), NewField("field2"), NewField("field3")).
+		From(NewTable("table1"))
 
-	if len(expectation.Fields) != len(actual.Fields) {
-		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
-	}
-
-	for i := range expectation.Fields {
-		if expectation.Fields[i] != actual.Fields[i] {
-			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
-		}
-	}
-
-	if expectation.Table != actual.Table {
-		t.Errorf("expectation table is %s, got %s", expectation.Table, actual.Table)
-	}
+	testSelectQuery_SelectQueryEquality(t, expectation, actual)
 }
 
 func TestSelectQuery_Where(t *testing.T) {
@@ -65,13 +116,27 @@ func TestSelectQuery_Where(t *testing.T) {
 	)
 
 	expectation = &SelectQuery{
-		Fields: []string{"field1", "field2", "field3"},
-		Table:  "table1",
+		Fields: []*Field{
+			{
+				Column: "field1",
+			},
+			{
+				Column: "field2",
+			},
+			{
+				Column: "field3",
+			},
+		},
+		Table: &Table{
+			Name: "table1",
+		},
 		Filter: &Filter{
 			Logic: LogicAnd,
 			Filters: []*Filter{
 				{
-					Field:    "field1",
+					Field: &Field{
+						Column: "field1",
+					},
 					Operator: OperatorEqual,
 					Value:    "value1",
 				},
@@ -79,31 +144,15 @@ func TestSelectQuery_Where(t *testing.T) {
 		},
 	}
 
-	actual = Select("field1", "field2", "field3").
-		From("table1").
+	actual = Select(NewField("field1"), NewField("field2"), NewField("field3")).
+		From(NewTable("table1")).
 		Where(
 			NewFilter().
 				SetLogic(LogicAnd).
-				AddFilter("field1", OperatorEqual, "value1"),
+				AddFilter(NewField("field1"), OperatorEqual, "value1"),
 		)
 
-	if len(expectation.Fields) != len(actual.Fields) {
-		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
-	}
-
-	for i := range expectation.Fields {
-		if expectation.Fields[i] != actual.Fields[i] {
-			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
-		}
-	}
-
-	if expectation.Table != actual.Table {
-		t.Errorf("expectation table is %s, got %s", expectation.Table, actual.Table)
-	}
-
-	if !deepEqual(expectation.Filter, actual.Filter) {
-		t.Errorf("expectation filter is %v, got %v", expectation.Filter, actual.Filter)
-	}
+	testSelectQuery_SelectQueryEquality(t, expectation, actual)
 }
 
 func TestSelectQuery_OrderBy(t *testing.T) {
@@ -113,8 +162,20 @@ func TestSelectQuery_OrderBy(t *testing.T) {
 	)
 
 	expectation = &SelectQuery{
-		Fields: []string{"field1", "field2", "field3"},
-		Table:  "table1",
+		Fields: []*Field{
+			{
+				Column: "field1",
+			},
+			{
+				Column: "field2",
+			},
+			{
+				Column: "field3",
+			},
+		},
+		Table: &Table{
+			Name: "table1",
+		},
 		Sorts: []*Sort{
 			{
 				Field:     "field1",
@@ -127,48 +188,14 @@ func TestSelectQuery_OrderBy(t *testing.T) {
 		},
 	}
 
-	actual = Select("field1", "field2", "field3").
-		From("table1").
+	actual = Select(NewField("field1"), NewField("field2"), NewField("field3")).
+		From(NewTable("table1")).
 		OrderBy(
 			NewSort("field1", SortDirectionDescending),
 			NewSort("field2", SortDirectionAscending),
 		)
 
-	if len(expectation.Fields) != len(actual.Fields) {
-		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
-	}
-
-	for i := range expectation.Fields {
-		if expectation.Fields[i] != actual.Fields[i] {
-			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
-		}
-	}
-
-	if expectation.Table != actual.Table {
-		t.Errorf("expectation table is %s, got %s", expectation.Table, actual.Table)
-	}
-
-	if len(expectation.Sorts) != len(actual.Sorts) {
-		t.Errorf("expectation length of sorts is %d, got %d", len(expectation.Sorts), len(actual.Sorts))
-	}
-
-	for i := range expectation.Sorts {
-		if expectation.Sorts[i] == nil && actual.Sorts[i] != nil {
-			t.Errorf("expectation element of sorts is nil, got %v", actual.Sorts[i])
-		}
-
-		if expectation.Sorts[i] != nil && actual.Sorts[i] == nil {
-			t.Errorf("expectation element of sorts is %v, got nil", expectation.Sorts[i])
-		}
-
-		if expectation.Sorts[i].Field != actual.Sorts[i].Field {
-			t.Errorf("expectation field of sorts element is %s, got %s", expectation.Sorts[i].Field, actual.Sorts[i].Field)
-		}
-
-		if string(expectation.Sorts[i].Direction) != string(actual.Sorts[i].Direction) {
-			t.Errorf("expectation direction of sorts element is %s, got %s", expectation.Sorts[i].Direction, actual.Sorts[i].Direction)
-		}
-	}
+	testSelectQuery_SelectQueryEquality(t, expectation, actual)
 }
 
 func TestSelectQuery_Limit(t *testing.T) {
@@ -178,69 +205,117 @@ func TestSelectQuery_Limit(t *testing.T) {
 	)
 
 	expectation = &SelectQuery{
-		Fields: []string{"field1", "field2", "field3"},
-		Table:  "table1",
-		Take:   10,
+		Fields: []*Field{
+			{
+				Column: "field1",
+			},
+			{
+				Column: "field2",
+			},
+			{
+				Column: "field3",
+			},
+		},
+		Table: &Table{
+			Name: "table1",
+		},
+		Take: 10,
 	}
 
-	actual = Select("field1", "field2", "field3").
-		From("table1").
+	actual = Select(NewField("field1"), NewField("field2"), NewField("field3")).
+		From(NewTable("table1")).
 		Limit(10)
 
-	if len(expectation.Fields) != len(actual.Fields) {
-		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
+	testSelectQuery_SelectQueryEquality(t, expectation, actual)
+}
+
+func TestSelectQuery_As(t *testing.T) {
+	var (
+		expectation *SelectQuery
+		actual      *SelectQuery
+	)
+
+	expectation = &SelectQuery{
+		Fields: []*Field{
+			{
+				Column: "field1",
+			},
+			{
+				Column: "field2",
+			},
+			{
+				Column: "field3",
+			},
+		},
+		Table: &Table{
+			Name: "table1",
+		},
+		Alias: "alias1",
 	}
 
-	for i := range expectation.Fields {
-		if expectation.Fields[i] != actual.Fields[i] {
-			t.Errorf("expectation element of fields is %s, got %s", expectation.Fields[i], actual.Fields[i])
-		}
-	}
+	actual = Select(NewField("field1"), NewField("field2"), NewField("field3")).
+		From(NewTable("table1")).
+		As("alias1")
 
-	if expectation.Table != actual.Table {
-		t.Errorf("expectation table is %s, got %s", expectation.Table, actual.Table)
-	}
-
-	if expectation.Take != actual.Take {
-		t.Errorf("expectation take is %d, got %d", expectation.Take, actual.Take)
-	}
+	testSelectQuery_SelectQueryEquality(t, expectation, actual)
 }
 
 func TestSelectQuery_validate(t *testing.T) {
 	var testCases []struct {
 		Name        string
+		Dialect     Dialect
 		SelectQuery *SelectQuery
 		Expectation error
 	} = []struct {
 		Name        string
+		Dialect     Dialect
 		SelectQuery *SelectQuery
 		Expectation error
 	}{
 		{
-			Name:        "fields is empty",
+			Name:        "dialect is empty",
+			Dialect:     "",
 			SelectQuery: &SelectQuery{},
-			Expectation: errors.New("fields is required"),
+			Expectation: ErrDialectIsRequired,
 		},
 		{
-			Name: "field is empty",
+			Name:        "fields is empty",
+			Dialect:     DialectPostgres,
+			SelectQuery: &SelectQuery{},
+			Expectation: ErrFieldsIsRequired,
+		},
+		{
+			Name:    "fields element is nil",
+			Dialect: DialectPostgres,
 			SelectQuery: &SelectQuery{
-				Fields: []string{""},
+				Fields: []*Field{nil},
 			},
-			Expectation: errors.New("field is required"),
+			Expectation: ErrFieldIsNil,
 		},
 		{
-			Name: "table is empty",
+			Name:    "table is nil",
+			Dialect: DialectPostgres,
 			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
+				Fields: []*Field{
+					{
+						Column: "field1",
+					},
+				},
 			},
-			Expectation: errors.New("table is required"),
+			Expectation: ErrTableIsRequired,
 		},
 		{
-			Name: "select query is valid",
+			Name:    "select query is valid",
+			Dialect: DialectPostgres,
 			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Take:   10,
+				Fields: []*Field{
+					{
+						Column: "field1",
+					},
+				},
+				Table: &Table{
+					Name: "table1",
+				},
 			},
 			Expectation: nil,
 		},
@@ -248,7 +323,7 @@ func TestSelectQuery_validate(t *testing.T) {
 
 	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
-			var actual error = testCases[i].SelectQuery.validate()
+			var actual error = testCases[i].SelectQuery.validate(testCases[i].Dialect)
 
 			if testCases[i].Expectation != nil && actual == nil {
 				t.Error("expectation error is not nil, got nil")
@@ -288,7 +363,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 		{
 			Name:        "fields is empty",
 			SelectQuery: &SelectQuery{},
-			Dialect:     "",
+			Dialect:     DialectPostgres,
 			Expectation: struct {
 				Query string
 				Args  []interface{}
@@ -296,53 +371,18 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("fields is required"),
+				Error: ErrFieldsIsRequired,
 			},
 		},
 		{
-			Name: "field is empty",
+			Name: "fields is not empty and fields element is not nil and fields element to sql with args with alias is error",
 			SelectQuery: &SelectQuery{
-				Fields: []string{""},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: errors.New("field is required"),
-			},
-		},
-		{
-			Name: "table is empty",
-			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: errors.New("table is required"),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with invalid filter", DialectMySQL),
-			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Filter: &Filter{
-					Logic:   LogicAnd,
-					Filters: []*Filter{},
+				Fields: []*Field{
+					{},
 				},
-				Take: 100,
+				Table: &Table{},
 			},
-			Dialect: DialectMySQL,
+			Dialect: DialectPostgres,
 			Expectation: struct {
 				Query string
 				Args  []interface{}
@@ -350,23 +390,43 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("filters is required"),
+				Error: ErrColumnIsRequired,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with invalid sort", DialectMySQL),
+			Name: "fields is not empty and fields element is not nil",
 			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Sorts: []*Sort{
+				Fields: []*Field{
 					{
-						Field:     "",
-						Direction: SortDirectionDescending,
+						Column: "field1",
 					},
 				},
-				Take: 100,
+				Table: &Table{
+					Name: "table1",
+				},
 			},
-			Dialect: DialectMySQL,
+			Dialect: DialectPostgres,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Error error
+			}{
+				Query: "select field1 from table1",
+				Args:  nil,
+				Error: nil,
+			},
+		},
+		{
+			Name: "table is not nil and table is to sql with args with alias is error",
+			SelectQuery: &SelectQuery{
+				Fields: []*Field{
+					{
+						Column: "field1",
+					},
+				},
+				Table: &Table{},
+			},
+			Dialect: DialectPostgres,
 			Expectation: struct {
 				Query string
 				Args  []interface{}
@@ -374,144 +434,24 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("field is required"),
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with element sorts is nil", DialectMySQL),
-			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Sorts: []*Sort{
-					nil,
-				},
-				Take: 100,
-			},
-			Dialect: DialectMySQL,
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "select field1, field2, field3 from table1 limit ?",
-				Args:  []interface{}{100},
-				Error: nil,
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with take", DialectMySQL),
-			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Take:   10,
-			},
-			Dialect: DialectMySQL,
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "select field1, field2, field3 from table1 limit ?",
-				Args:  []interface{}{10},
-				Error: nil,
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter sort take", DialectMySQL),
-			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Filter: &Filter{
-					Logic: LogicAnd,
-					Filters: []*Filter{
-						{
-							Field:    "field1",
-							Operator: OperatorEqual,
-							Value:    "value1",
-						},
-					},
-				},
-				Sorts: []*Sort{
-					{
-						Field:     "field1",
-						Direction: SortDirectionDescending,
-					},
-				},
-				Take: 10,
-			},
-			Dialect: DialectMySQL,
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "select field1, field2, field3 from table1 where field1 = ? order by field1 desc limit ?",
-				Args:  []interface{}{"value1", 10},
-				Error: nil,
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter take", DialectMySQL),
-			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Filter: &Filter{
-					Logic: LogicAnd,
-					Filters: []*Filter{
-						{
-							Field:    "field1",
-							Operator: OperatorEqual,
-							Value:    "value1",
-						},
-					},
-				},
-				Take: 10,
-			},
-			Dialect: DialectMySQL,
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "select field1, field2, field3 from table1 where field1 = ? limit ?",
-				Args:  []interface{}{"value1", 10},
-				Error: nil,
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with sort take", DialectMySQL),
-			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Sorts: []*Sort{
-					{
-						Field:     "field1",
-						Direction: SortDirectionDescending,
-					},
-				},
-				Take: 10,
-			},
-			Dialect: DialectMySQL,
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "select field1, field2, field3 from table1 order by field1 desc limit ?",
-				Args:  []interface{}{10},
-				Error: nil,
+				Error: ErrNameIsRequired,
 			},
 		},
 		{
 			Name: fmt.Sprintf("dialect %s with invalid filter", DialectPostgres),
 			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
+				Fields: []*Field{
+					{
+						Column: "field1",
+					},
+				},
+				Table: &Table{
+					Name: "table1",
+				},
 				Filter: &Filter{
 					Logic:   LogicAnd,
 					Filters: []*Filter{},
 				},
-				Take: 100,
 			},
 			Dialect: DialectPostgres,
 			Expectation: struct {
@@ -521,14 +461,81 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("filters is required"),
+				Error: ErrFiltersIsRequired,
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with filter", DialectPostgres),
+			SelectQuery: &SelectQuery{
+				Fields: []*Field{
+					{
+						Column: "field1",
+					},
+				},
+				Table: &Table{
+					Name: "table1",
+				},
+				Filter: &Filter{
+					Logic: LogicAnd,
+					Filters: []*Filter{
+						{
+							Field: &Field{
+								Column: "field1",
+							},
+							Operator: OperatorEqual,
+							Value:    "value1",
+						},
+					},
+				},
+			},
+			Dialect: DialectPostgres,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Error error
+			}{
+				Query: "select field1 from table1 where field1 = $1",
+				Args:  []interface{}{"value1"},
+				Error: nil,
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with element sorts is nil", DialectPostgres),
+			SelectQuery: &SelectQuery{
+				Fields: []*Field{
+					{
+						Column: "field1",
+					},
+				},
+				Table: &Table{
+					Name: "table1",
+				},
+				Sorts: []*Sort{
+					nil,
+				},
+			},
+			Dialect: DialectPostgres,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Error error
+			}{
+				Query: "select field1 from table1",
+				Args:  []interface{}{},
+				Error: nil,
 			},
 		},
 		{
 			Name: fmt.Sprintf("dialect %s with invalid sort", DialectPostgres),
 			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
+				Fields: []*Field{
+					{
+						Column: "field1",
+					},
+				},
+				Table: &Table{
+					Name: "table1",
+				},
 				Sorts: []*Sort{
 					{
 						Field:     "",
@@ -545,18 +552,26 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: errors.New("field is required"),
+				Error: ErrFieldIsRequired,
 			},
 		},
 		{
-			Name: fmt.Sprintf("dialect %s with element sorts is nil", DialectPostgres),
+			Name: fmt.Sprintf("dialect %s with sort", DialectPostgres),
 			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Sorts: []*Sort{
-					nil,
+				Fields: []*Field{
+					{
+						Column: "field1",
+					},
 				},
-				Take: 100,
+				Table: &Table{
+					Name: "table1",
+				},
+				Sorts: []*Sort{
+					{
+						Field:     "field1",
+						Direction: SortDirectionDescending,
+					},
+				},
 			},
 			Dialect: DialectPostgres,
 			Expectation: struct {
@@ -564,49 +579,21 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				Args  []interface{}
 				Error error
 			}{
-				Query: "select field1, field2, field3 from table1 limit $1",
-				Args:  []interface{}{100},
+				Query: "select field1 from table1 order by field1 desc",
+				Args:  []interface{}{},
 				Error: nil,
 			},
 		},
 		{
 			Name: fmt.Sprintf("dialect %s with take", DialectPostgres),
 			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Take:   10,
-			},
-			Dialect: DialectPostgres,
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "select field1, field2, field3 from table1 limit $1",
-				Args:  []interface{}{10},
-				Error: nil,
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter sort take", DialectPostgres),
-			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Filter: &Filter{
-					Logic: LogicAnd,
-					Filters: []*Filter{
-						{
-							Field:    "field1",
-							Operator: OperatorEqual,
-							Value:    "value1",
-						},
-					},
-				},
-				Sorts: []*Sort{
+				Fields: []*Field{
 					{
-						Field:     "field1",
-						Direction: SortDirectionDescending,
+						Column: "field1",
 					},
+				},
+				Table: &Table{
+					Name: "table1",
 				},
 				Take: 10,
 			},
@@ -616,59 +603,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				Args  []interface{}
 				Error error
 			}{
-				Query: "select field1, field2, field3 from table1 where field1 = $1 order by field1 desc limit $2",
-				Args:  []interface{}{"value1", 10},
-				Error: nil,
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with filter take", DialectPostgres),
-			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Filter: &Filter{
-					Logic: LogicAnd,
-					Filters: []*Filter{
-						{
-							Field:    "field1",
-							Operator: OperatorEqual,
-							Value:    "value1",
-						},
-					},
-				},
-				Take: 10,
-			},
-			Dialect: DialectPostgres,
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "select field1, field2, field3 from table1 where field1 = $1 limit $2",
-				Args:  []interface{}{"value1", 10},
-				Error: nil,
-			},
-		},
-		{
-			Name: fmt.Sprintf("dialect %s with sort take", DialectPostgres),
-			SelectQuery: &SelectQuery{
-				Fields: []string{"field1", "field2", "field3"},
-				Table:  "table1",
-				Sorts: []*Sort{
-					{
-						Field:     "field1",
-						Direction: SortDirectionDescending,
-					},
-				},
-				Take: 10,
-			},
-			Dialect: DialectPostgres,
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "select field1, field2, field3 from table1 order by field1 desc limit $1",
+				Query: "select field1 from table1 limit $1",
 				Args:  []interface{}{10},
 				Error: nil,
 			},
@@ -683,7 +618,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 				actualErr   error
 			)
 
-			actualQuery, actualArgs, actualErr = testCases[i].SelectQuery.ToSQLWithArgs(testCases[i].Dialect)
+			actualQuery, actualArgs, actualErr = testCases[i].SelectQuery.ToSQLWithArgs(testCases[i].Dialect, []interface{}{})
 
 			if testCases[i].Expectation.Error != nil && actualErr == nil {
 				t.Error("expectation error is not nil, got nil")
@@ -707,7 +642,106 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 
 			for j := range testCases[i].Expectation.Args {
 				if !deepEqual(testCases[i].Expectation.Args[j], actualArgs[j]) {
-					t.Errorf("expectation element of args is %v, got %v", testCases[i].Expectation.Args[j], actualArgs[j])
+					t.Errorf("expectation element of args is %+v, got %+v", testCases[i].Expectation.Args[j], actualArgs[j])
+				}
+			}
+		})
+	}
+}
+
+func TestSelectQuery_ToSQLWithArgsWithAlias(t *testing.T) {
+	var testCases []struct {
+		Name        string
+		Dialect     Dialect
+		SelectQuery *SelectQuery
+		Expectation struct {
+			Query string
+			Args  []interface{}
+			Err   error
+		}
+	} = []struct {
+		Name        string
+		Dialect     Dialect
+		SelectQuery *SelectQuery
+		Expectation struct {
+			Query string
+			Args  []interface{}
+			Err   error
+		}
+	}{
+		{
+			Name:        "to sql with args is error",
+			Dialect:     DialectPostgres,
+			SelectQuery: &SelectQuery{},
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Err   error
+			}{
+				Query: "",
+				Args:  nil,
+				Err:   ErrFieldsIsRequired,
+			},
+		},
+		{
+			Name:    "alias is not empty",
+			Dialect: DialectPostgres,
+			SelectQuery: &SelectQuery{
+				Fields: []*Field{
+					{
+						Column: "field1",
+					},
+				},
+				Table: &Table{
+					Name: "table1",
+				},
+				Alias: "alias1",
+			},
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Err   error
+			}{
+				Query: "(select field1 from table1) as alias1",
+				Args:  []interface{}{},
+				Err:   nil,
+			},
+		},
+	}
+
+	for i := range testCases {
+		t.Run(testCases[i].Name, func(t *testing.T) {
+			var (
+				actualQuery string
+				actualArgs  []interface{}
+				actualErr   error
+			)
+
+			actualQuery, actualArgs, actualErr = testCases[i].SelectQuery.ToSQLWithArgsWithAlias(testCases[i].Dialect, []interface{}{})
+
+			if testCases[i].Expectation.Err != nil && actualErr == nil {
+				t.Error("expectation error is not nil, got nil")
+			}
+
+			if testCases[i].Expectation.Err == nil && actualErr != nil {
+				t.Error("expectation error is nil, got not nil")
+			}
+
+			if testCases[i].Expectation.Err != nil && actualErr != nil && testCases[i].Expectation.Err.Error() != actualErr.Error() {
+				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Err.Error(), actualErr.Error())
+			}
+
+			if testCases[i].Expectation.Query != actualQuery {
+				t.Errorf("expectation query is %s, got %s", testCases[i].Expectation.Query, actualQuery)
+			}
+
+			if len(testCases[i].Expectation.Args) != len(actualArgs) {
+				t.Errorf("expectation length of args is %d, got %d", len(testCases[i].Expectation.Args), len(actualArgs))
+			}
+
+			for j := range testCases[i].Expectation.Args {
+				if !deepEqual(testCases[i].Expectation.Args[j], actualArgs[j]) {
+					t.Errorf("expectation element of args is %+v, got %+v", testCases[i].Expectation.Args[j], actualArgs[j])
 				}
 			}
 		})

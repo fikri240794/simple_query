@@ -15,7 +15,7 @@ func typedSliceToInterfaceSlice(value interface{}) ([]interface{}, error) {
 
 	reflectValue = reflect.ValueOf(value)
 	if reflectValue.Kind() != reflect.Slice && reflectValue.Kind() != reflect.Array {
-		return nil, fmt.Errorf(ErrUnsupportedValueTypef, reflectValue.Kind().String())
+		return nil, fmt.Errorf(errUnsupportedValueTypef, reflectValue.Kind().String())
 	}
 
 	interfaceSlice = []interface{}{}

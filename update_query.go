@@ -28,7 +28,11 @@ func (u *UpdateQuery) Where(filter *Filter) *UpdateQuery {
 	return u
 }
 
-func (u *UpdateQuery) validate() error {
+func (u *UpdateQuery) validate(dialect Dialect) error {
+	if dialect == "" {
+		return ErrDialectIsRequired
+	}
+
 	if u.Table == "" {
 		return ErrTableIsRequired
 	}
@@ -59,7 +63,7 @@ func (u *UpdateQuery) ToSQLWithArgs(dialect Dialect) (string, []interface{}, err
 		err          error
 	)
 
-	err = u.validate()
+	err = u.validate(dialect)
 	if err != nil {
 		return "", nil, err
 	}

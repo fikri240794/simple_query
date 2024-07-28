@@ -64,11 +64,15 @@ func (i *InsertQuery) getColumnsAndRowsValues() ([]string, [][]interface{}) {
 	return columns, rowsValues
 }
 
-func (i *InsertQuery) validate() error {
+func (i *InsertQuery) validate(dialect Dialect) error {
 	var (
 		columns    []string
 		rowsValues [][]interface{}
 	)
+
+	if dialect == "" {
+		return ErrDialectIsRequired
+	}
 
 	if i.Table == "" {
 		return ErrTableIsRequired
@@ -111,13 +115,8 @@ func (i *InsertQuery) ToSQLWithArgs(dialect Dialect) (string, []interface{}, err
 		err          error
 	)
 
-	err = i.validate()
+	err = i.validate(dialect)
 	if err != nil {
-		return "", nil, err
-	}
-
-	if dialect == "" {
-		err = ErrDialectIsRequired
 		return "", nil, err
 	}
 

@@ -8,7 +8,7 @@ import (
 
 type Filter struct {
 	Logic    Logic
-	Field    string
+	Field    *Field
 	Operator Operator
 	Value    interface{}
 	Filters  []*Filter
@@ -23,14 +23,14 @@ func (f *Filter) SetLogic(logic Logic) *Filter {
 	return f
 }
 
-func (f *Filter) SetCondition(field string, operator Operator, value interface{}) *Filter {
+func (f *Filter) SetCondition(field *Field, operator Operator, value interface{}) *Filter {
 	f.Field = field
 	f.Operator = operator
 	f.Value = value
 	return f
 }
 
-func (f *Filter) AddFilter(field string, operator Operator, value interface{}) *Filter {
+func (f *Filter) AddFilter(field *Field, operator Operator, value interface{}) *Filter {
 	f.Filters = append(f.Filters, &Filter{Field: field, Operator: operator, Value: value})
 	return f
 }
@@ -40,10 +40,16 @@ func (f *Filter) AddFilters(filters ...*Filter) *Filter {
 	return f
 }
 
-func (f *Filter) validate() error {
-	var reflectValue reflect.Value = reflect.ValueOf(f.Value)
+func (f *Filter) validate(dialect Dialect) error {
+	var reflectValue reflect.Value
 
-	if f.Logic != "" && f.Field != "" {
+	if dialect == "" {
+		return ErrDialectIsRequired
+	}
+
+	reflectValue = reflect.ValueOf(f.Value)
+
+	if f.Logic != "" && f.Field != nil {
 		return ErrFieldIsNotEmpty
 	}
 
@@ -52,7 +58,7 @@ func (f *Filter) validate() error {
 	}
 
 	if f.Logic != "" && (f.Value != nil || reflectValue.Kind() != reflect.Invalid) {
-		return ErrValueIsNotEmpty
+		return ErrValueIsNotNil
 	}
 
 	if f.Logic != "" && len(f.Filters) == 0 {
@@ -64,7 +70,7 @@ func (f *Filter) validate() error {
 	}
 
 	if f.Logic == "" && len(f.Filters) == 0 {
-		if f.Field == "" {
+		if f.Field == nil {
 			return ErrFieldIsRequired
 		}
 
@@ -76,17 +82,17 @@ func (f *Filter) validate() error {
 			return ErrValueIsRequired
 		}
 
-		if (f.Operator == OperatorIsNotNull || f.Operator == OperatorIsNull) && (f.Value != nil || reflectValue.Kind() != reflect.Invalid) {
-			return ErrValueIsNotEmpty
+		if (f.Operator == OperatorIsNull || f.Operator == OperatorIsNotNull) && (f.Value != nil || reflectValue.Kind() != reflect.Invalid) {
+			return ErrValueIsNotNil
 		}
 
 		if f.Operator != OperatorIn && f.Operator != OperatorNotIn && (reflectValue.Kind() == reflect.Slice || reflectValue.Kind() == reflect.Array) {
-			return fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflectValue.Kind().String(), f.Operator)
+			return fmt.Errorf(errUnsupportedValueTypeForOperatorf, reflectValue.Kind().String(), f.Operator)
 		}
 
 		if f.Operator == OperatorIn || f.Operator == OperatorNotIn {
 			if reflectValue.Kind() != reflect.Slice && reflectValue.Kind() != reflect.Array {
-				return fmt.Errorf(ErrUnsupportedValueTypeForOperatorf, reflectValue.Kind().String(), f.Operator)
+				return fmt.Errorf(errUnsupportedValueTypeForOperatorf, reflectValue.Kind().String(), f.Operator)
 			}
 
 			if reflectValue.Len() == 0 {
@@ -96,7 +102,7 @@ func (f *Filter) validate() error {
 	}
 
 	for i := range f.Filters {
-		var err error = f.Filters[i].validate()
+		var err error = f.Filters[i].validate(dialect)
 		if err != nil {
 			return err
 		}
@@ -107,20 +113,23 @@ func (f *Filter) validate() error {
 
 func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool) (string, []interface{}, error) {
 	var (
-		whereClause          string
-		conditionQueries     []string
+		field                string
 		conditionQueryFormat string
 		filterOperator       string
 		placeholderStartIdx  int
 		placeholderEndIdx    int
 		placeholder          string
 		conditionQuery       string
+		conditionQueries     []string
+		whereClause          string
 		err                  error
 	)
 
-	if dialect == "" {
-		err = ErrDialectIsRequired
-		return "", args, err
+	if f.Operator != "" {
+		field, args, err = f.Field.ToSQLWithArgsWithAlias(dialect, args)
+		if err != nil {
+			return "", nil, err
+		}
 	}
 
 	switch f.Operator {
@@ -131,14 +140,14 @@ func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool)
 		placeholderStartIdx = len(args)
 		placeholderEndIdx = len(args)
 		placeholder = getPlaceholder(dialect, placeholderStartIdx, placeholderEndIdx)
-		conditionQuery = fmt.Sprintf(conditionQueryFormat, f.Field, filterOperator, placeholder)
+		conditionQuery = fmt.Sprintf(conditionQueryFormat, field, filterOperator, placeholder)
 
 		return conditionQuery, args, nil
 
 	case OperatorIsNull, OperatorIsNotNull:
 		conditionQueryFormat = "%s %s"
 		filterOperator = filterOperatorMap[f.Operator]
-		conditionQuery = fmt.Sprintf(conditionQueryFormat, f.Field, filterOperator)
+		conditionQuery = fmt.Sprintf(conditionQueryFormat, field, filterOperator)
 
 		return conditionQuery, args, nil
 
@@ -150,7 +159,7 @@ func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool)
 
 		interfaceSlice, err = typedSliceToInterfaceSlice(f.Value)
 		if err != nil {
-			err = fmt.Errorf(ErrForOperatorf, err.Error(), f.Operator)
+			err = fmt.Errorf(errForOperatorf, err.Error(), f.Operator)
 			return "", nil, err
 		}
 
@@ -158,7 +167,7 @@ func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool)
 		placeholderStartIdx = len(args) - (len(interfaceSlice) - 1)
 		placeholderEndIdx = len(args)
 		placeholder = getPlaceholder(dialect, placeholderStartIdx, placeholderEndIdx)
-		conditionQuery = fmt.Sprintf(conditionQueryFormat, f.Field, filterOperator, placeholder)
+		conditionQuery = fmt.Sprintf(conditionQueryFormat, field, filterOperator, placeholder)
 
 		return conditionQuery, args, nil
 
@@ -179,7 +188,7 @@ func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool)
 		placeholderStartIdx = len(args)
 		placeholderEndIdx = len(args)
 		placeholder = getPlaceholder(dialect, placeholderStartIdx, placeholderEndIdx)
-		conditionQuery = fmt.Sprintf(conditionQueryFormat, f.Field, filterOperator, placeholder)
+		conditionQuery = fmt.Sprintf(conditionQueryFormat, field, filterOperator, placeholder)
 
 		return conditionQuery, args, nil
 	}
@@ -200,7 +209,7 @@ func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool)
 
 		subConditionQuery, subArgs, err = f.Filters[i].toSQLWithArgs(dialect, args, false)
 		if err != nil {
-			return "", args, err
+			return "", nil, err
 		}
 
 		if subConditionQuery != "" {
@@ -223,9 +232,9 @@ func (f *Filter) toSQLWithArgs(dialect Dialect, args []interface{}, isRoot bool)
 }
 
 func (f *Filter) ToSQLWithArgs(dialect Dialect, args []interface{}) (string, []interface{}, error) {
-	var err error = f.validate()
+	var err error = f.validate(dialect)
 	if err != nil {
-		return "", args, err
+		return "", nil, err
 	}
 
 	return f.toSQLWithArgs(dialect, args, true)

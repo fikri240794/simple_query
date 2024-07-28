@@ -23,7 +23,11 @@ func (d *DeleteQuery) Where(filter *Filter) *DeleteQuery {
 	return d
 }
 
-func (d *DeleteQuery) validate() error {
+func (d *DeleteQuery) validate(dialect Dialect) error {
+	if dialect == "" {
+		return ErrDialectIsRequired
+	}
+
 	if d.Table == "" {
 		return ErrTableIsRequired
 	}
@@ -43,7 +47,7 @@ func (d *DeleteQuery) ToSQLWithArgs(dialect Dialect) (string, []interface{}, err
 		err         error
 	)
 
-	err = d.validate()
+	err = d.validate(dialect)
 	if err != nil {
 		return "", nil, err
 	}

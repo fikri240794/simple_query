@@ -48,7 +48,9 @@ func TestDeleteQuery_Where(t *testing.T) {
 			Logic: LogicAnd,
 			Filters: []*Filter{
 				{
-					Field:    "field1",
+					Field: &Field{
+						Column: "field1",
+					},
 					Operator: OperatorEqual,
 					Value:    "value1",
 				},
@@ -61,7 +63,7 @@ func TestDeleteQuery_Where(t *testing.T) {
 		Where(
 			NewFilter().
 				SetLogic(LogicAnd).
-				AddFilter("field1", OperatorEqual, "value1"),
+				AddFilter(NewField("field1"), OperatorEqual, "value1"),
 		)
 
 	if expectation.Table != actual.Table {
@@ -76,34 +78,47 @@ func TestDeleteQuery_Where(t *testing.T) {
 func TestDeleteQuery_validate(t *testing.T) {
 	var testCases []struct {
 		Name        string
+		Dialect     Dialect
 		DeleteQuery *DeleteQuery
 		Expectation error
 	} = []struct {
 		Name        string
+		Dialect     Dialect
 		DeleteQuery *DeleteQuery
 		Expectation error
 	}{
 		{
+			Name:        "dialeg is empty",
+			Dialect:     "",
+			DeleteQuery: &DeleteQuery{},
+			Expectation: ErrDialectIsRequired,
+		},
+		{
 			Name:        "table is empty",
+			Dialect:     DialectPostgres,
 			DeleteQuery: &DeleteQuery{},
 			Expectation: ErrTableIsRequired,
 		},
 		{
-			Name: "filter is empty",
+			Name:    "filter is empty",
+			Dialect: DialectPostgres,
 			DeleteQuery: &DeleteQuery{
 				Table: "table1",
 			},
 			Expectation: ErrFilterIsRequired,
 		},
 		{
-			Name: "delete query is valid",
+			Name:    "delete query is valid",
+			Dialect: DialectPostgres,
 			DeleteQuery: &DeleteQuery{
 				Table: "table1",
 				Filter: &Filter{
 					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
-							Field:    "field1",
+							Field: &Field{
+								Column: "field1",
+							},
 							Operator: OperatorEqual,
 							Value:    "value1",
 						},
@@ -116,7 +131,7 @@ func TestDeleteQuery_validate(t *testing.T) {
 
 	for i := range testCases {
 		t.Run(testCases[i].Name, func(t *testing.T) {
-			var actual error = testCases[i].DeleteQuery.validate()
+			var actual error = testCases[i].DeleteQuery.validate(testCases[i].Dialect)
 
 			if testCases[i].Expectation != nil && actual == nil {
 				t.Error("expectation error is not nil, got nil")
@@ -154,9 +169,9 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 		}
 	}{
 		{
-			Name:        "table is empty",
+			Name:        "delete query is invalid",
 			DeleteQuery: &DeleteQuery{},
-			Dialect:     "",
+			Dialect:     DialectPostgres,
 			Expectation: struct {
 				Query string
 				Args  []interface{}
@@ -168,11 +183,12 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 			},
 		},
 		{
-			Name: "filter is empty",
+			Name: fmt.Sprintf("delete query with dialect %s and filter to sql args is error", DialectPostgres),
 			DeleteQuery: &DeleteQuery{
-				Table: "table1",
+				Table:  "table1",
+				Filter: &Filter{},
 			},
-			Dialect: "",
+			Dialect: DialectPostgres,
 			Expectation: struct {
 				Query string
 				Args  []interface{}
@@ -180,53 +196,7 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 			}{
 				Query: "",
 				Args:  nil,
-				Error: ErrFilterIsRequired,
-			},
-		},
-		{
-			Name: "filter is invalid", // don't test all invalid filter here, because it's handled in filter_test.go
-			DeleteQuery: &DeleteQuery{
-				Table: "table1",
-				Filter: &Filter{
-					Logic:   LogicAnd,
-					Filters: []*Filter{},
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: ErrFiltersIsRequired,
-			},
-		},
-		{
-			Name: fmt.Sprintf("delete query with dialect %s", DialectMySQL),
-			DeleteQuery: &DeleteQuery{
-				Table: "table1",
-				Filter: &Filter{
-					Logic: LogicAnd,
-					Filters: []*Filter{
-						{
-							Field:    "field1",
-							Operator: OperatorEqual,
-							Value:    "value1",
-						},
-					},
-				},
-			},
-			Dialect: DialectMySQL,
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "delete from table1 where field1 = ?",
-				Args:  []interface{}{"value1"},
-				Error: nil,
+				Error: ErrFieldIsRequired,
 			},
 		},
 		{
@@ -237,7 +207,9 @@ func TestDeleteQuery_ToSQLWithArgs(t *testing.T) {
 					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
-							Field:    "field1",
+							Field: &Field{
+								Column: "field1",
+							},
 							Operator: OperatorEqual,
 							Value:    "value1",
 						},

@@ -50,25 +50,38 @@ var filterOperatorMap map[Operator]string = map[Operator]string{
 	OperatorNotLike:            "not like",
 }
 
-var (
-	ErrUnsupportedValueTypef            string = "unsupported %s value type"
-	ErrForOperatorf                     string = "%s for operator %s"
-	ErrUnsupportedValueTypeForOperatorf string = "unsupported %s value type for operator %s"
+type SortDirection string
+
+const (
+	SortDirectionAscending  SortDirection = "asc"
+	SortDirectionDescending SortDirection = "desc"
+)
+
+const (
+	errForOperatorf                     string = "%s for operator %s"
+	errUnsupportedValueTypeForOperatorf string = "unsupported %s value type for operator %s"
+	errUnsupportedValueTypef            string = "unsupported %s value type"
 )
 
 var (
-	ErrFieldsIsRequired                    error = errors.New("fields is required")
-	ErrFieldIsRequired                     error = errors.New("field is required")
-	ErrTableIsRequired                     error = errors.New("table is required")
-	ErrFieldIsNotEmpty                     error = errors.New("field is not empty")
-	ErrOperatorIsNotEmpty                  error = errors.New("operator is not empty")
-	ErrValueIsNotEmpty                     error = errors.New("value is not empty")
-	ErrFiltersIsRequired                   error = errors.New("filters is required")
-	ErrLogicIsRequired                     error = errors.New("logic is required")
-	ErrOperatorIsRequired                  error = errors.New("operator is required")
-	ErrValueIsRequired                     error = errors.New("value is required")
-	ErrDialectIsRequired                   error = errors.New("dialect is required")
-	ErrValuesIsRequired                    error = errors.New("values is required")
-	ErrValueLengthIsNotEqualToFieldsLength error = errors.New("value length is not equal to fields length")
-	ErrFilterIsRequired                    error = errors.New("filter is required")
+	ErrAliasIsRequired                        error = errors.New("alias is required")
+	ErrColumnIsRequired                       error = errors.New("column is required")
+	ErrConflictFieldColumnAndFieldSelectQuery error = errors.New("conflict between field column and field select query")
+	ErrConflictTableNameAndTableSelectQuery   error = errors.New("conflict between table name and table select query")
+	ErrDialectIsRequired                      error = errors.New("dialect is required")
+	ErrFieldIsNil                             error = errors.New("field is nil")
+	ErrFieldIsNotEmpty                        error = errors.New("field is not empty")
+	ErrFieldIsRequired                        error = errors.New("field is required")
+	ErrFieldsIsRequired                       error = errors.New("fields is required")
+	ErrFilterIsRequired                       error = errors.New("filter is required")
+	ErrFiltersIsRequired                      error = errors.New("filters is required")
+	ErrLogicIsRequired                        error = errors.New("logic is required")
+	ErrNameIsRequired                         error = errors.New("name is required")
+	ErrOperatorIsNotEmpty                     error = errors.New("operator is not empty")
+	ErrOperatorIsRequired                     error = errors.New("operator is required")
+	ErrTableIsRequired                        error = errors.New("table is required")
+	ErrValueIsNotNil                          error = errors.New("value is not nil")
+	ErrValueIsRequired                        error = errors.New("value is required")
+	ErrValueLengthIsNotEqualToFieldsLength    error = errors.New("value length is not equal to fields length")
+	ErrValuesIsRequired                       error = errors.New("values is required")
 )

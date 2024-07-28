@@ -1,7 +1,6 @@
 package simple_query
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 )
@@ -78,7 +77,9 @@ func TestUpdateQuery_Where(t *testing.T) {
 			Logic: LogicAnd,
 			Filters: []*Filter{
 				{
-					Field:    "field1",
+					Field: &Field{
+						Column: "field1",
+					},
 					Operator: OperatorEqual,
 					Value:    "value1",
 				},
@@ -92,7 +93,7 @@ func TestUpdateQuery_Where(t *testing.T) {
 		Where(
 			NewFilter().
 				SetLogic(LogicAnd).
-				AddFilter("field1", OperatorEqual, "value1"),
+				AddFilter(NewField("field1"), OperatorEqual, "value1"),
 		)
 
 	if expectation.Table != actual.Table {
@@ -119,20 +120,30 @@ func TestUpdateQuery_Where(t *testing.T) {
 func TestUpdateQuery_validate(t *testing.T) {
 	var testCases []struct {
 		Name        string
+		Dialect     Dialect
 		UpdateQuery *UpdateQuery
 		Expectation error
 	} = []struct {
 		Name        string
+		Dialect     Dialect
 		UpdateQuery *UpdateQuery
 		Expectation error
 	}{
 		{
+			Name:        "dialect is empty",
+			Dialect:     "",
+			UpdateQuery: &UpdateQuery{},
+			Expectation: ErrDialectIsRequired,
+		},
+		{
 			Name:        "table is empty",
+			Dialect:     DialectPostgres,
 			UpdateQuery: &UpdateQuery{},
 			Expectation: ErrTableIsRequired,
 		},
 		{
-			Name: "fields and value is empty",
+			Name:    "fields and value is empty",
+			Dialect: DialectPostgres,
 			UpdateQuery: &UpdateQuery{
 				Table:       "table1",
 				FieldsValue: map[string]interface{}{},
@@ -140,7 +151,8 @@ func TestUpdateQuery_validate(t *testing.T) {
 			Expectation: ErrFieldsIsRequired,
 		},
 		{
-			Name: "field is empty",
+			Name:    "field is empty",
+			Dialect: DialectPostgres,
 			UpdateQuery: &UpdateQuery{
 				Table: "table1",
 				FieldsValue: map[string]interface{}{
@@ -150,7 +162,8 @@ func TestUpdateQuery_validate(t *testing.T) {
 			Expectation: ErrFieldIsRequired,
 		},
 		{
-			Name: "filter is empty",
+			Name:    "filter is empty",
+			Dialect: DialectPostgres,
 			UpdateQuery: &UpdateQuery{
 				Table: "table1",
 				FieldsValue: map[string]interface{}{
@@ -160,7 +173,8 @@ func TestUpdateQuery_validate(t *testing.T) {
 			Expectation: ErrFilterIsRequired,
 		},
 		{
-			Name: "update query is valid",
+			Name:    "update query is valid",
+			Dialect: DialectPostgres,
 			UpdateQuery: &UpdateQuery{
 				Table: "table1",
 				FieldsValue: map[string]interface{}{
@@ -170,7 +184,7 @@ func TestUpdateQuery_validate(t *testing.T) {
 					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
-							Field:    "field1",
+							Field:    NewField("field1"),
 							Operator: OperatorEqual,
 							Value:    "value1",
 						},
@@ -183,7 +197,7 @@ func TestUpdateQuery_validate(t *testing.T) {
 
 	for i := 0; i < len(testCases); i++ {
 		t.Run(testCases[i].Name, func(t *testing.T) {
-			var actual error = testCases[i].UpdateQuery.validate()
+			var actual error = testCases[i].UpdateQuery.validate(testCases[i].Dialect)
 
 			if testCases[i].Expectation != nil && actual == nil {
 				t.Error("expectation error is not nil, got nil")
@@ -223,7 +237,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 		{
 			Name:        "table is empty",
 			UpdateQuery: &UpdateQuery{},
-			Dialect:     "",
+			Dialect:     DialectPostgres,
 			Expectation: struct {
 				Query string
 				Args  []interface{}
@@ -234,63 +248,9 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 				Error: ErrTableIsRequired,
 			},
 		},
+
 		{
-			Name: "fields and value is empty",
-			UpdateQuery: &UpdateQuery{
-				Table:       "table1",
-				FieldsValue: map[string]interface{}{},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: ErrFieldsIsRequired,
-			},
-		},
-		{
-			Name: "field is empty",
-			UpdateQuery: &UpdateQuery{
-				Table: "table1",
-				FieldsValue: map[string]interface{}{
-					"": "field1",
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: ErrFieldIsRequired,
-			},
-		},
-		{
-			Name: "filter is empty",
-			UpdateQuery: &UpdateQuery{
-				Table: "table1",
-				FieldsValue: map[string]interface{}{
-					"field1": "value1",
-				},
-			},
-			Dialect: "",
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "",
-				Args:  nil,
-				Error: errors.New("filter is required"),
-			},
-		},
-		{
-			Name: "filter is invalid", // don't test all invalid filter here, because it's handled in filter_test.go
+			Name: fmt.Sprintf("update with dialect %s with filter is not nil and filter to sql with args is error", DialectPostgres),
 			UpdateQuery: &UpdateQuery{
 				Table: "table1",
 				FieldsValue: map[string]interface{}{
@@ -301,7 +261,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 					Filters: []*Filter{},
 				},
 			},
-			Dialect: "",
+			Dialect: DialectPostgres,
 			Expectation: struct {
 				Query string
 				Args  []interface{}
@@ -310,35 +270,6 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 				Query: "",
 				Args:  nil,
 				Error: ErrFiltersIsRequired,
-			},
-		},
-		{
-			Name: fmt.Sprintf("update with dialect %s with filter", DialectMySQL),
-			UpdateQuery: &UpdateQuery{
-				Table: "table1",
-				FieldsValue: map[string]interface{}{
-					"field1": "value1",
-				},
-				Filter: &Filter{
-					Logic: LogicAnd,
-					Filters: []*Filter{
-						{
-							Field:    "field2",
-							Operator: OperatorEqual,
-							Value:    "value2",
-						},
-					},
-				},
-			},
-			Dialect: DialectMySQL,
-			Expectation: struct {
-				Query string
-				Args  []interface{}
-				Error error
-			}{
-				Query: "update table1 set field1 = ? where field2 = ?",
-				Args:  []interface{}{"value1", "value2"},
-				Error: nil,
 			},
 		},
 		{
@@ -352,7 +283,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 					Logic: LogicAnd,
 					Filters: []*Filter{
 						{
-							Field:    "field2",
+							Field:    NewField("field2"),
 							Operator: OperatorEqual,
 							Value:    "value2",
 						},

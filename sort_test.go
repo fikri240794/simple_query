@@ -1,7 +1,6 @@
 package simple_query
 
 import (
-	"errors"
 	"testing"
 )
 
@@ -40,7 +39,7 @@ func TestSort_validate(t *testing.T) {
 		{
 			Name:        "field is empty",
 			Sort:        &Sort{},
-			Expectation: errors.New("field is required"),
+			Expectation: ErrFieldIsRequired,
 		},
 		{
 			Name: "sort is valid",
@@ -95,7 +94,7 @@ func TestSort_ToSQL(t *testing.T) {
 				Error error
 			}{
 				Query: "",
-				Error: errors.New("field is required"),
+				Error: ErrFieldIsRequired,
 			},
 		},
 		{

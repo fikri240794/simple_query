@@ -13,58 +13,128 @@ package main
 
 import (
 	"log"
-	"github.com/fikri240794/simple_query"
+	sq "github.com/fikri240794/simple_query"
 )
 
 func main() {
 	var (
-		selectQuery *simple_query.SelectQuery
+		selectQuery *sq.SelectQuery
 		query       string
 		args        []interface{}
 		err         error
 	)
 
-	selectQuery = simple_query.Select("field1", "field2", "field3", "field4", "field5").
-		From("table1").
+	selectQuery = sq.Select(
+		sq.NewField("field1"),
+		sq.NewField("field2"),
+		sq.NewField("field3"),
+		sq.NewField("field4"),
+		sq.NewField("field5"),
+	).
+		From(sq.NewTable("table1")).
 		Where(
-			simple_query.NewFilter().
-				SetLogic(simple_query.LogicAnd).
+			sq.NewFilter().
+				SetLogic(sq.LogicAnd).
 				AddFilters(
-					simple_query.NewFilter().
-						SetCondition("field1", simple_query.OperatorEqual, "value1"),
-					simple_query.NewFilter().
-						SetCondition("field2", simple_query.OperatorNotEqual, true),
-					simple_query.NewFilter().
-						SetLogic(simple_query.LogicOr).
-						AddFilter("field3", simple_query.OperatorGreaterThan, 50).
-						AddFilter("field4", simple_query.OperatorGreaterThanOrEqual, 75.4),
-					simple_query.NewFilter().
-						SetLogic(simple_query.LogicOr).
-						AddFilter("field5", simple_query.OperatorLessThan, "value5").
-						AddFilter("field6", simple_query.OperatorLessThanOrEqual, "value6"),
-					simple_query.NewFilter().
-						SetLogic(simple_query.LogicAnd).
-						AddFilter("field7", simple_query.OperatorIsNull, nil).
-						AddFilter("field8", simple_query.OperatorIsNotNull, nil),
-					simple_query.NewFilter().
-						SetLogic(simple_query.LogicOr).
+					sq.NewFilter().
+						SetCondition(
+							sq.NewField("field1"),
+							sq.OperatorEqual,
+							"value1",
+						),
+					sq.NewFilter().
+						SetCondition(
+							sq.NewField("field2"),
+							sq.OperatorNotEqual,
+							true,
+						),
+					sq.NewFilter().
+						SetLogic(sq.LogicOr).
+						AddFilter(
+							sq.NewField("field3"),
+							sq.OperatorGreaterThan,
+							50,
+						).
+						AddFilter(
+							sq.NewField("field4"),
+							sq.OperatorGreaterThanOrEqual,
+							75.4,
+						),
+					sq.NewFilter().
+						SetLogic(sq.LogicOr).
+						AddFilter(
+							sq.NewField("field5"),
+							sq.OperatorLessThan,
+							"value5",
+						).
+						AddFilter(
+							sq.NewField("field6"),
+							sq.OperatorLessThanOrEqual,
+							"value6",
+						),
+					sq.NewFilter().
+						SetLogic(sq.LogicAnd).
+						AddFilter(
+							sq.NewField("field7"),
+							sq.OperatorIsNull,
+							nil,
+						).
+						AddFilter(
+							sq.NewField("field8"),
+							sq.OperatorIsNotNull,
+							nil,
+						),
+					sq.NewFilter().
+						SetLogic(sq.LogicOr).
 						AddFilters(
-							simple_query.NewFilter().
-								SetLogic(simple_query.LogicAnd).
-								AddFilter("field9", simple_query.OperatorIn, []string{"value9.1", "value9.2", "value9.3"}).
-								AddFilter("field10", simple_query.OperatorNotIn, [3]float64{10.1, 10.2, 10.3}),
-							simple_query.NewFilter().SetCondition("field11", simple_query.OperatorLike, "value11"),
-							simple_query.NewFilter().SetCondition("field12", simple_query.OperatorNotLike, "value12"),
+							sq.NewFilter().
+								SetLogic(sq.LogicAnd).
+								AddFilter(
+									sq.NewField("field9"),
+									sq.OperatorIn,
+									[]string{
+										"value9.1",
+										"value9.2",
+										"value9.3",
+									},
+								).
+								AddFilter(
+									sq.NewField("field10"),
+									sq.OperatorNotIn,
+									[3]float64{
+										10.1,
+										10.2,
+										10.3,
+									},
+								),
+							sq.NewFilter().
+								SetCondition(
+									sq.NewField("field11"),
+									sq.OperatorLike,
+									"value11",
+								),
+							sq.NewFilter().
+								SetCondition(
+									sq.NewField("field12"),
+									sq.OperatorNotLike,
+									"value12",
+								),
 						),
 				),
 		).
 		OrderBy(
-			simple_query.NewSort("field1", simple_query.SortDirectionAscending),
-			simple_query.NewSort("field2", simple_query.SortDirectionDescending),
+			sq.NewSort(
+				"field1",
+				sq.SortDirectionAscending,
+			),
+			sq.NewSort(
+				"field2",
+				sq.SortDirectionDescending,
+			),
 		).
 		Limit(50)
 
-	query, args, err = selectQuery.ToSQLWithArgs(simple_query.DialectPostgres)
+	query, args, err = selectQuery.ToSQLWithArgsWithAlias(sq.DialectPostgres, []interface{}{})
 
 	log.Printf("query: %s", query)
 	/*
@@ -139,18 +209,19 @@ package main
 
 import (
 	"log"
-	"github.com/fikri240794/simple_query"
+	sq "github.com/fikri240794/simple_query"
 )
 
 func main() {
 	var (
-		insertQuery *simple_query.InsertQuery
+		insertQuery *sq.InsertQuery
 		query       string
 		args        []interface{}
 		err         error
 	)
 
-	insertQuery = simple_query.Insert().Into("table1").
+	insertQuery = sq.Insert().
+		Into("table1").
 		Value("field1", 1).
 		Value("field2", "value2.1").
 		Value("field3", 3.14).
@@ -167,7 +238,7 @@ func main() {
 		Value("field4", 4).
 		Value("field5", false)
 
-	query, args, err = insertQuery.ToSQLWithArgs(simple_query.DialectPostgres)
+	query, args, err = insertQuery.ToSQLWithArgs(sq.DialectPostgres)
 
 	log.Printf("query: %s", query)
 	/*
@@ -212,29 +283,33 @@ package main
 
 import (
 	"log"
-	"github.com/fikri240794/simple_query"
+	sq "github.com/fikri240794/simple_query"
 )
 
 func main() {
 	var (
-		updateQuery *simple_query.UpdateQuery
+		updateQuery *sq.UpdateQuery
 		query       string
 		args        []interface{}
 		err         error
 	)
 
-	updateQuery = simple_query.Update("table1").
+	updateQuery = sq.Update("table1").
 		Set("field2", 1).
 		Set("field3", "value3").
 		Set("field4", 4.265).
 		Set("field5", true).
 		Where(
-			simple_query.NewFilter().
-				SetLogic(simple_query.LogicAnd).
-				AddFilter("field1", simple_query.OperatorEqual, "value1"),
+			sq.NewFilter().
+				SetLogic(sq.LogicAnd).
+				AddFilter(
+					sq.NewField("field1"),
+					sq.OperatorEqual,
+					"value1",
+				),
 		)
 
-	query, args, err = updateQuery.ToSQLWithArgs(simple_query.DialectPostgres)
+	query, args, err = updateQuery.ToSQLWithArgs(sq.DialectPostgres)
 
 	log.Printf("query: %s", query)
 	/*
@@ -270,26 +345,30 @@ package main
 
 import (
 	"log"
-	"github.com/fikri240794/simple_query"
+	sq "github.com/fikri240794/simple_query"
 )
 
 func main() {
 	var (
-		deleteQuery *simple_query.DeleteQuery
+		deleteQuery *sq.DeleteQuery
 		query       string
 		args        []interface{}
 		err         error
 	)
 
-	deleteQuery = simple_query.Delete().
+	deleteQuery = sq.Delete().
 		From("table1").
 		Where(
-			simple_query.NewFilter().
-				SetLogic(simple_query.LogicAnd).
-				AddFilter("field1", simple_query.OperatorEqual, "value1"),
+			sq.NewFilter().
+				SetLogic(sq.LogicAnd).
+				AddFilter(
+					sq.NewField("field1"),
+					sq.OperatorEqual,
+					"value1",
+				),
 		)
 
-	query, args, err = deleteQuery.ToSQLWithArgs(simple_query.DialectPostgres)
+	query, args, err = deleteQuery.ToSQLWithArgs(sq.DialectPostgres)
 
 	log.Printf("query: %s", query)
 	/*
