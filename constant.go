@@ -74,6 +74,7 @@ var (
 	ErrFieldIsRequired                        error = errors.New("field is required")
 	ErrFieldsIsRequired                       error = errors.New("fields is required")
 	ErrFilterIsRequired                       error = errors.New("filter is required")
+	ErrFilterValueIsNil                       error = errors.New("filter value is nil")
 	ErrFiltersIsRequired                      error = errors.New("filters is required")
 	ErrLogicIsRequired                        error = errors.New("logic is required")
 	ErrNameIsRequired                         error = errors.New("name is required")

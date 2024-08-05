@@ -3,6 +3,18 @@ package simple_query
 import "testing"
 
 func testField_FieldEquality(t *testing.T, expectation, actual *Field) {
+	if expectation == nil && actual == nil {
+		t.Skip("expectation and actual is nil")
+	}
+
+	if expectation == nil && actual != nil {
+		t.Errorf("expectation is nil, got %+v", actual)
+	}
+
+	if expectation != nil && actual == nil {
+		t.Errorf("expectation is %+v, got nil", expectation)
+	}
+
 	if expectation.Column != actual.Column {
 		t.Errorf("expectation column is %s, got %s", expectation.Column, actual.Column)
 	}

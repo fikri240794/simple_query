@@ -4,6 +4,28 @@ import (
 	"testing"
 )
 
+func testSort_SortEquality(t *testing.T, expectation, actual *Sort) {
+	if expectation == nil && actual == nil {
+		t.Skip("expectation and actual is nil")
+	}
+
+	if expectation == nil && actual != nil {
+		t.Errorf("expectation is nil, got %+v", actual)
+	}
+
+	if expectation != nil && actual == nil {
+		t.Errorf("expectation is %+v, got nil", expectation)
+	}
+
+	if expectation.Field != actual.Field {
+		t.Errorf("expectation field is %s, got %s", expectation.Field, actual.Field)
+	}
+
+	if expectation.Direction != actual.Direction {
+		t.Errorf("expectation direction is %s, got %s", expectation.Direction, actual.Direction)
+	}
+}
+
 func TestSort_NewSort(t *testing.T) {
 	var (
 		expectation *Sort
@@ -17,13 +39,7 @@ func TestSort_NewSort(t *testing.T) {
 
 	actual = NewSort("field1", SortDirectionAscending)
 
-	if expectation.Field != actual.Field {
-		t.Errorf("expectation field is %s, got %s", expectation.Field, actual.Field)
-	}
-
-	if expectation.Direction != actual.Direction {
-		t.Errorf("expectation direction is %s, got %s", expectation.Direction, actual.Direction)
-	}
+	testSort_SortEquality(t, expectation, actual)
 }
 
 func TestSort_validate(t *testing.T) {
@@ -76,14 +92,14 @@ func TestSort_ToSQL(t *testing.T) {
 		Sort        *Sort
 		Expectation struct {
 			Query string
-			Error error
+			Err   error
 		}
 	} = []struct {
 		Name        string
 		Sort        *Sort
 		Expectation struct {
 			Query string
-			Error error
+			Err   error
 		}
 	}{
 		{
@@ -91,10 +107,10 @@ func TestSort_ToSQL(t *testing.T) {
 			Sort: &Sort{},
 			Expectation: struct {
 				Query string
-				Error error
+				Err   error
 			}{
 				Query: "",
-				Error: ErrFieldIsRequired,
+				Err:   ErrFieldIsRequired,
 			},
 		},
 		{
@@ -104,10 +120,10 @@ func TestSort_ToSQL(t *testing.T) {
 			},
 			Expectation: struct {
 				Query string
-				Error error
+				Err   error
 			}{
 				Query: "field1 asc",
-				Error: nil,
+				Err:   nil,
 			},
 		},
 		{
@@ -118,10 +134,10 @@ func TestSort_ToSQL(t *testing.T) {
 			},
 			Expectation: struct {
 				Query string
-				Error error
+				Err   error
 			}{
 				Query: "field1 desc",
-				Error: nil,
+				Err:   nil,
 			},
 		},
 	}
@@ -135,16 +151,16 @@ func TestSort_ToSQL(t *testing.T) {
 
 			actualQuery, actualErr = testCases[i].Sort.ToSQL()
 
-			if testCases[i].Expectation.Error != nil && actualErr == nil {
+			if testCases[i].Expectation.Err != nil && actualErr == nil {
 				t.Error("expectation error is not nil, got nil")
 			}
 
-			if testCases[i].Expectation.Error == nil && actualErr != nil {
+			if testCases[i].Expectation.Err == nil && actualErr != nil {
 				t.Error("expectation error is nil, got not nil")
 			}
 
-			if testCases[i].Expectation.Error != nil && actualErr != nil && testCases[i].Expectation.Error.Error() != actualErr.Error() {
-				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Error.Error(), actualErr.Error())
+			if testCases[i].Expectation.Err != nil && actualErr != nil && testCases[i].Expectation.Err.Error() != actualErr.Error() {
+				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Err.Error(), actualErr.Error())
 			}
 
 			if testCases[i].Expectation.Query != actualQuery {

@@ -5,6 +5,39 @@ import (
 	"testing"
 )
 
+func testInsertQuery_InsertQueryEquality(t *testing.T, expectation, actual *InsertQuery) {
+	if expectation == nil && actual == nil {
+		t.Skip("expectation and actual is nil")
+	}
+
+	if expectation == nil && actual != nil {
+		t.Errorf("expectation is nil, got %+v", actual)
+	}
+
+	if expectation != nil && actual == nil {
+		t.Errorf("expectation is %+v, got nil", expectation)
+	}
+
+	if expectation.Table != actual.Table {
+		t.Errorf("expectation table is %s, got %s", expectation.Table, actual.Table)
+	}
+
+	if len(expectation.FieldsValues) != len(actual.FieldsValues) {
+		t.Errorf("expectation length of field values is %d, got %d", len(expectation.FieldsValues), len(actual.FieldsValues))
+	}
+
+	for field, values := range expectation.FieldsValues {
+		if len(actual.FieldsValues[field]) != len(values) {
+			t.Errorf("expectation length of field values is %d, got %d", len(expectation.FieldsValues), len(actual.FieldsValues))
+		}
+		for i := range values {
+			if !deepEqual(values[i], actual.FieldsValues[field][i]) {
+				t.Errorf("expectation element of values is %v, got %v", values[i], actual.FieldsValues[field][i])
+			}
+		}
+	}
+}
+
 func TestInsertQuery_Insert(t *testing.T) {
 	var (
 		expectation *InsertQuery
@@ -16,9 +49,7 @@ func TestInsertQuery_Insert(t *testing.T) {
 	}
 	actual = Insert()
 
-	if !deepEqual(expectation, actual) {
-		t.Errorf("expectation insert query is %v, got %v", expectation, actual)
-	}
+	testInsertQuery_InsertQueryEquality(t, expectation, actual)
 }
 
 func TestInsertQuery_Into(t *testing.T) {
@@ -34,9 +65,7 @@ func TestInsertQuery_Into(t *testing.T) {
 	actual = Insert().
 		Into("table1")
 
-	if expectation.Table != actual.Table {
-		t.Errorf("expectation table is %s, got %s", expectation.Table, actual.Table)
-	}
+	testInsertQuery_InsertQueryEquality(t, expectation, actual)
 }
 
 func TestInsertQuery_Value(t *testing.T) {
@@ -63,20 +92,7 @@ func TestInsertQuery_Value(t *testing.T) {
 		Value("field2", 3).
 		Value("field3", true)
 
-	if len(expectation.FieldsValues) != len(actual.FieldsValues) {
-		t.Errorf("expectation length of field values is %d, got %d", len(expectation.FieldsValues), len(actual.FieldsValues))
-	}
-
-	for field, values := range expectation.FieldsValues {
-		if len(actual.FieldsValues[field]) != len(values) {
-			t.Errorf("expectation length of field values is %d, got %d", len(expectation.FieldsValues), len(actual.FieldsValues))
-		}
-		for i := range values {
-			if !deepEqual(values[i], actual.FieldsValues[field][i]) {
-				t.Errorf("expectation element of values is %v, got %v", values[i], actual.FieldsValues[field][i])
-			}
-		}
-	}
+	testInsertQuery_InsertQueryEquality(t, expectation, actual)
 }
 
 func TestInsertQuery_getColumnsAndRowsValues(t *testing.T) {
@@ -276,7 +292,7 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 		Expectation struct {
 			Query string
 			Args  []interface{}
-			Error error
+			Err   error
 		}
 	} = []struct {
 		Name        string
@@ -285,7 +301,7 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 		Expectation struct {
 			Query string
 			Args  []interface{}
-			Error error
+			Err   error
 		}
 	}{
 		{
@@ -295,11 +311,11 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "",
 				Args:  nil,
-				Error: ErrTableIsRequired,
+				Err:   ErrTableIsRequired,
 			},
 		},
 		{
@@ -315,11 +331,11 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "insert into table1(field1, field2) values (?, ?), (?, ?)",
 				Args:  []interface{}{"value1", 1, "value2", 2},
-				Error: nil,
+				Err:   nil,
 			},
 		},
 		{
@@ -335,11 +351,11 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "insert into table1(field1, field2) values ($1, $2), ($3, $4)",
 				Args:  []interface{}{"value1", 1, "value2", 2},
-				Error: nil,
+				Err:   nil,
 			},
 		},
 	}
@@ -354,19 +370,19 @@ func TestInsertQuery_ToSQLWithArgs(t *testing.T) {
 
 			actualQuery, actualArgs, actualErr = testCases[i].InsertQuery.ToSQLWithArgs(testCases[i].Dialect)
 
-			if testCases[i].Expectation.Error != nil && actualErr == nil {
+			if testCases[i].Expectation.Err != nil && actualErr == nil {
 				t.Error("expectation error is not nil, got nil")
 			}
 
-			if testCases[i].Expectation.Error == nil && actualErr != nil {
+			if testCases[i].Expectation.Err == nil && actualErr != nil {
 				t.Error("expectation error is nil, got not nil")
 			}
 
-			if testCases[i].Expectation.Error != nil && actualErr != nil && testCases[i].Expectation.Error.Error() != actualErr.Error() {
-				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Error.Error(), actualErr.Error())
+			if testCases[i].Expectation.Err != nil && actualErr != nil && testCases[i].Expectation.Err.Error() != actualErr.Error() {
+				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Err.Error(), actualErr.Error())
 			}
 
-			if testCases[i].Expectation.Error == nil && actualErr == nil {
+			if testCases[i].Expectation.Err == nil && actualErr == nil {
 				if testCases[i].Expectation.Query != actualQuery {
 					t.Errorf("expectation query is %s, got %s", testCases[i].Expectation.Query, actualQuery)
 				}

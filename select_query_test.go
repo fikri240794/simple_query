@@ -6,6 +6,18 @@ import (
 )
 
 func testSelectQuery_SelectQueryEquality(t *testing.T, expectation, actual *SelectQuery) {
+	if expectation == nil && actual == nil {
+		t.Skip("expectation and actual is nil")
+	}
+
+	if expectation == nil && actual != nil {
+		t.Errorf("expectation is nil, got %+v", actual)
+	}
+
+	if expectation != nil && actual == nil {
+		t.Errorf("expectation is %+v, got nil", expectation)
+	}
+
 	if len(expectation.Fields) != len(actual.Fields) {
 		t.Errorf("expectation length of fields is %d, got %d", len(expectation.Fields), len(actual.Fields))
 	} else {
@@ -138,7 +150,9 @@ func TestSelectQuery_Where(t *testing.T) {
 						Column: "field1",
 					},
 					Operator: OperatorEqual,
-					Value:    "value1",
+					Value: &FilterValue{
+						Value: "value1",
+					},
 				},
 			},
 		},
@@ -149,7 +163,7 @@ func TestSelectQuery_Where(t *testing.T) {
 		Where(
 			NewFilter().
 				SetLogic(LogicAnd).
-				AddFilter(NewField("field1"), OperatorEqual, "value1"),
+				AddFilter(NewField("field1"), OperatorEqual, NewFilterValue("value1")),
 		)
 
 	testSelectQuery_SelectQueryEquality(t, expectation, actual)
@@ -348,7 +362,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 		Expectation struct {
 			Query string
 			Args  []interface{}
-			Error error
+			Err   error
 		}
 	} = []struct {
 		Name        string
@@ -357,7 +371,7 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 		Expectation struct {
 			Query string
 			Args  []interface{}
-			Error error
+			Err   error
 		}
 	}{
 		{
@@ -367,11 +381,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "",
 				Args:  nil,
-				Error: ErrFieldsIsRequired,
+				Err:   ErrFieldsIsRequired,
 			},
 		},
 		{
@@ -386,11 +400,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "",
 				Args:  nil,
-				Error: ErrColumnIsRequired,
+				Err:   ErrColumnIsRequired,
 			},
 		},
 		{
@@ -409,11 +423,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "select field1 from table1",
 				Args:  nil,
-				Error: nil,
+				Err:   nil,
 			},
 		},
 		{
@@ -430,11 +444,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "",
 				Args:  nil,
-				Error: ErrNameIsRequired,
+				Err:   ErrNameIsRequired,
 			},
 		},
 		{
@@ -457,11 +471,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "",
 				Args:  nil,
-				Error: ErrFiltersIsRequired,
+				Err:   ErrFiltersIsRequired,
 			},
 		},
 		{
@@ -483,7 +497,9 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 								Column: "field1",
 							},
 							Operator: OperatorEqual,
-							Value:    "value1",
+							Value: &FilterValue{
+								Value: "value1",
+							},
 						},
 					},
 				},
@@ -492,11 +508,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "select field1 from table1 where field1 = $1",
 				Args:  []interface{}{"value1"},
-				Error: nil,
+				Err:   nil,
 			},
 		},
 		{
@@ -518,11 +534,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "select field1 from table1",
 				Args:  []interface{}{},
-				Error: nil,
+				Err:   nil,
 			},
 		},
 		{
@@ -548,11 +564,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "",
 				Args:  nil,
-				Error: ErrFieldIsRequired,
+				Err:   ErrFieldIsRequired,
 			},
 		},
 		{
@@ -577,11 +593,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "select field1 from table1 order by field1 desc",
 				Args:  []interface{}{},
-				Error: nil,
+				Err:   nil,
 			},
 		},
 		{
@@ -601,11 +617,11 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "select field1 from table1 limit $1",
 				Args:  []interface{}{10},
-				Error: nil,
+				Err:   nil,
 			},
 		},
 	}
@@ -620,16 +636,16 @@ func TestSelectQuery_ToSQLWithArgs(t *testing.T) {
 
 			actualQuery, actualArgs, actualErr = testCases[i].SelectQuery.ToSQLWithArgs(testCases[i].Dialect, []interface{}{})
 
-			if testCases[i].Expectation.Error != nil && actualErr == nil {
+			if testCases[i].Expectation.Err != nil && actualErr == nil {
 				t.Error("expectation error is not nil, got nil")
 			}
 
-			if testCases[i].Expectation.Error == nil && actualErr != nil {
+			if testCases[i].Expectation.Err == nil && actualErr != nil {
 				t.Error("expectation error is nil, got not nil")
 			}
 
-			if testCases[i].Expectation.Error != nil && actualErr != nil && testCases[i].Expectation.Error.Error() != actualErr.Error() {
-				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Error.Error(), actualErr.Error())
+			if testCases[i].Expectation.Err != nil && actualErr != nil && testCases[i].Expectation.Err.Error() != actualErr.Error() {
+				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Err.Error(), actualErr.Error())
 			}
 
 			if testCases[i].Expectation.Query != actualQuery {

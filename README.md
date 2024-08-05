@@ -40,37 +40,37 @@ func main() {
 						SetCondition(
 							sq.NewField("field1"),
 							sq.OperatorEqual,
-							"value1",
+							sq.NewFilterValue("value1"),
 						),
 					sq.NewFilter().
 						SetCondition(
 							sq.NewField("field2"),
 							sq.OperatorNotEqual,
-							true,
+							sq.NewFilterValue(true),
 						),
 					sq.NewFilter().
 						SetLogic(sq.LogicOr).
 						AddFilter(
 							sq.NewField("field3"),
 							sq.OperatorGreaterThan,
-							50,
+							sq.NewFilterValue(50),
 						).
 						AddFilter(
 							sq.NewField("field4"),
 							sq.OperatorGreaterThanOrEqual,
-							75.4,
+							sq.NewFilterValue(75.4),
 						),
 					sq.NewFilter().
 						SetLogic(sq.LogicOr).
 						AddFilter(
 							sq.NewField("field5"),
 							sq.OperatorLessThan,
-							"value5",
+							sq.NewFilterValue("value5"),
 						).
 						AddFilter(
 							sq.NewField("field6"),
 							sq.OperatorLessThanOrEqual,
-							"value6",
+							sq.NewFilterValue("value6"),
 						),
 					sq.NewFilter().
 						SetLogic(sq.LogicAnd).
@@ -92,32 +92,36 @@ func main() {
 								AddFilter(
 									sq.NewField("field9"),
 									sq.OperatorIn,
-									[]string{
-										"value9.1",
-										"value9.2",
-										"value9.3",
-									},
+									sq.NewFilterValue(
+										[]string{
+											"value9.1",
+											"value9.2",
+											"value9.3",
+										},
+									),
 								).
 								AddFilter(
 									sq.NewField("field10"),
 									sq.OperatorNotIn,
-									[3]float64{
-										10.1,
-										10.2,
-										10.3,
-									},
+									sq.NewFilterValue(
+										[3]float64{
+											10.1,
+											10.2,
+											10.3,
+										},
+									),
 								),
 							sq.NewFilter().
 								SetCondition(
 									sq.NewField("field11"),
 									sq.OperatorLike,
-									"value11",
+									sq.NewFilterValue("value11"),
 								),
 							sq.NewFilter().
 								SetCondition(
 									sq.NewField("field12"),
 									sq.OperatorNotLike,
-									"value12",
+									sq.NewFilterValue("value12"),
 								),
 						),
 				),
@@ -305,7 +309,7 @@ func main() {
 				AddFilter(
 					sq.NewField("field1"),
 					sq.OperatorEqual,
-					"value1",
+					sq.NewFilterValue("value1"),
 				),
 		)
 
@@ -364,7 +368,7 @@ func main() {
 				AddFilter(
 					sq.NewField("field1"),
 					sq.OperatorEqual,
-					"value1",
+					sq.NewFilterValue("value1"),
 				),
 		)
 

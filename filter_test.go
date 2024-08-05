@@ -7,6 +7,18 @@ import (
 )
 
 func testFilter_FilterEquality(t *testing.T, expectation, actual *Filter) {
+	if expectation == nil && actual == nil {
+		t.Skip("expectation and actual is nil")
+	}
+
+	if expectation == nil && actual != nil {
+		t.Errorf("expectation is nil, got %+v", actual)
+	}
+
+	if expectation != nil && actual == nil {
+		t.Errorf("expectation is %+v, got nil", expectation)
+	}
+
 	if expectation.Logic != actual.Logic {
 		t.Errorf("expectation logic is %s, got %s", expectation.Logic, actual.Logic)
 	}
@@ -28,6 +40,18 @@ func testFilter_FilterEquality(t *testing.T, expectation, actual *Filter) {
 	}
 
 	if !deepEqual(expectation.Value, actual.Value) {
+		t.Errorf("expectation value is %+v, got %+v", expectation.Value, actual.Value)
+	}
+
+	if expectation.Value == nil && actual.Value != nil {
+		t.Errorf("expectation value is nil, got %+v", actual.Value)
+	}
+
+	if expectation.Value != nil && actual.Value == nil {
+		t.Errorf("expectation value is %+v, got nil", expectation.Value)
+	}
+
+	if expectation.Value != nil && actual.Value != nil && !deepEqual(expectation.Value, actual.Value) {
 		t.Errorf("expectation value is %+v, got %+v", expectation.Value, actual.Value)
 	}
 
@@ -84,169 +108,193 @@ func TestFilter_SetCondition(t *testing.T) {
 		Name        string
 		Field       *Field
 		Operator    Operator
-		Value       interface{}
+		Value       *FilterValue
 		Expectation *Filter
 	} = []struct {
 		Name        string
 		Field       *Field
 		Operator    Operator
-		Value       interface{}
+		Value       *FilterValue
 		Expectation *Filter
 	}{
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorEqual),
 			Field:    NewField("field1"),
 			Operator: OperatorEqual,
-			Value:    "value1",
+			Value:    NewFilterValue("value1"),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorEqual,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorNotEqual),
 			Field:    NewField("field1"),
 			Operator: OperatorNotEqual,
-			Value:    true,
+			Value:    NewFilterValue(true),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorNotEqual,
-				Value:    true,
+				Value: &FilterValue{
+					Value: true,
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorGreaterThan),
 			Field:    NewField("field1"),
 			Operator: OperatorGreaterThan,
-			Value:    int64(100),
+			Value:    NewFilterValue(int64(100)),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorGreaterThan,
-				Value:    int64(100),
+				Value: &FilterValue{
+					Value: int64(100),
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorGreaterThanOrEqual),
 			Field:    NewField("field1"),
 			Operator: OperatorGreaterThanOrEqual,
-			Value:    float64(100),
+			Value:    NewFilterValue(float64(100)),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorGreaterThanOrEqual,
-				Value:    float64(100),
+				Value: &FilterValue{
+					Value: float64(100),
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorLessThan),
 			Field:    NewField("field1"),
 			Operator: OperatorLessThan,
-			Value:    uint64(100),
+			Value:    NewFilterValue(uint64(100)),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorLessThan,
-				Value:    uint64(100),
+				Value: &FilterValue{
+					Value: uint64(100),
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorLessThanOrEqual),
 			Field:    NewField("field1"),
 			Operator: OperatorLessThanOrEqual,
-			Value:    "2006-01-02T15:04:05+07:00",
+			Value:    NewFilterValue("2006-01-02T15:04:05+07:00"),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorLessThanOrEqual,
-				Value:    "2006-01-02T15:04:05+07:00",
+				Value: &FilterValue{
+					Value: "2006-01-02T15:04:05+07:00",
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorIsNull),
 			Field:    NewField("field1"),
 			Operator: OperatorIsNull,
-			Value:    nil,
+			Value:    NewFilterValue(nil),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorIsNull,
-				Value:    nil,
+				Value: &FilterValue{
+					Value: nil,
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorIsNotNull),
 			Field:    NewField("field1"),
 			Operator: OperatorIsNotNull,
-			Value:    nil,
+			Value:    NewFilterValue(nil),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorIsNotNull,
-				Value:    nil,
+				Value: &FilterValue{
+					Value: nil,
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorIn),
 			Field:    NewField("field1"),
 			Operator: OperatorIn,
-			Value:    []string{"value1", "value 2", "value3"},
+			Value:    NewFilterValue([]string{"value1", "value 2", "value3"}),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorIn,
-				Value:    []string{"value1", "value 2", "value3"},
+				Value: &FilterValue{
+					Value: []string{"value1", "value 2", "value3"},
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorNotIn),
 			Field:    NewField("field1"),
 			Operator: OperatorNotIn,
-			Value:    [3]int64{1, 2, 3},
+			Value:    NewFilterValue([3]int64{1, 2, 3}),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorNotIn,
-				Value:    [3]int64{1, 2, 3},
+				Value: &FilterValue{
+					Value: [3]int64{1, 2, 3},
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorLike),
 			Field:    NewField("field1"),
 			Operator: OperatorLike,
-			Value:    "value1",
+			Value:    NewFilterValue("value1"),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorLike,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 		},
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorNotLike),
 			Field:    NewField("field1"),
 			Operator: OperatorNotLike,
-			Value:    "value1",
+			Value:    NewFilterValue("value1"),
 			Expectation: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorNotLike,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 		},
 	}
@@ -270,20 +318,20 @@ func TestFilter_AddFilter(t *testing.T) {
 		Name        string
 		Field       *Field
 		Operator    Operator
-		Value       interface{}
+		Value       *FilterValue
 		Expectation *Filter
 	} = []struct {
 		Name        string
 		Field       *Field
 		Operator    Operator
-		Value       interface{}
+		Value       *FilterValue
 		Expectation *Filter
 	}{
 		{
 			Name:     fmt.Sprintf("operator %s", OperatorEqual),
 			Field:    NewField("field1"),
 			Operator: OperatorEqual,
-			Value:    "value1",
+			Value:    NewFilterValue("value1"),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -291,7 +339,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},
@@ -300,7 +350,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorNotEqual),
 			Field:    NewField("field1"),
 			Operator: OperatorNotEqual,
-			Value:    true,
+			Value:    NewFilterValue(true),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -308,7 +358,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorNotEqual,
-						Value:    true,
+						Value: &FilterValue{
+							Value: true,
+						},
 					},
 				},
 			},
@@ -317,7 +369,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorGreaterThan),
 			Field:    NewField("field1"),
 			Operator: OperatorGreaterThan,
-			Value:    int64(100),
+			Value:    NewFilterValue(int64(100)),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -325,7 +377,7 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorGreaterThan,
-						Value:    int64(100),
+						Value:    NewFilterValue(int64(100)),
 					},
 				},
 			},
@@ -334,7 +386,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorGreaterThanOrEqual),
 			Field:    NewField("field1"),
 			Operator: OperatorGreaterThanOrEqual,
-			Value:    float64(100),
+			Value:    NewFilterValue(float64(100)),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -342,7 +394,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorGreaterThanOrEqual,
-						Value:    float64(100),
+						Value: &FilterValue{
+							Value: float64(100),
+						},
 					},
 				},
 			},
@@ -351,7 +405,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorLessThan),
 			Field:    NewField("field1"),
 			Operator: OperatorLessThan,
-			Value:    uint64(100),
+			Value:    NewFilterValue(uint64(100)),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -359,7 +413,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorLessThan,
-						Value:    uint64(100),
+						Value: &FilterValue{
+							Value: uint64(100),
+						},
 					},
 				},
 			},
@@ -368,7 +424,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorLessThanOrEqual),
 			Field:    NewField("field1"),
 			Operator: OperatorLessThanOrEqual,
-			Value:    "2006-01-02T15:04:05+07:00",
+			Value:    NewFilterValue("2006-01-02T15:04:05+07:00"),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -376,7 +432,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorLessThanOrEqual,
-						Value:    "2006-01-02T15:04:05+07:00",
+						Value: &FilterValue{
+							Value: "2006-01-02T15:04:05+07:00",
+						},
 					},
 				},
 			},
@@ -385,7 +443,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorIsNull),
 			Field:    NewField("field1"),
 			Operator: OperatorIsNull,
-			Value:    nil,
+			Value:    NewFilterValue(nil),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -393,7 +451,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorIsNull,
-						Value:    nil,
+						Value: &FilterValue{
+							Value: nil,
+						},
 					},
 				},
 			},
@@ -402,7 +462,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorIsNotNull),
 			Field:    NewField("field1"),
 			Operator: OperatorIsNotNull,
-			Value:    nil,
+			Value:    NewFilterValue(nil),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -410,7 +470,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorIsNotNull,
-						Value:    nil,
+						Value: &FilterValue{
+							Value: nil,
+						},
 					},
 				},
 			},
@@ -419,7 +481,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorIn),
 			Field:    NewField("field1"),
 			Operator: OperatorIn,
-			Value:    []string{"value1", "value 2", "value3"},
+			Value:    NewFilterValue([]string{"value1", "value 2", "value3"}),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -427,7 +489,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorIn,
-						Value:    []string{"value1", "value 2", "value3"},
+						Value: &FilterValue{
+							Value: []string{"value1", "value 2", "value3"},
+						},
 					},
 				},
 			},
@@ -436,7 +500,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorNotIn),
 			Field:    NewField("field1"),
 			Operator: OperatorNotIn,
-			Value:    [3]int64{1, 2, 3},
+			Value:    NewFilterValue([3]int64{1, 2, 3}),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -444,7 +508,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorNotIn,
-						Value:    [3]int64{1, 2, 3},
+						Value: &FilterValue{
+							Value: [3]int64{1, 2, 3},
+						},
 					},
 				},
 			},
@@ -453,7 +519,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorLike),
 			Field:    NewField("field1"),
 			Operator: OperatorLike,
-			Value:    "value1",
+			Value:    NewFilterValue("value1"),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -461,7 +527,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorLike,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},
@@ -470,7 +538,7 @@ func TestFilter_AddFilter(t *testing.T) {
 			Name:     fmt.Sprintf("operator %s", OperatorNotLike),
 			Field:    NewField("field1"),
 			Operator: OperatorNotLike,
-			Value:    "value1",
+			Value:    NewFilterValue("value1"),
 			Expectation: &Filter{
 				Filters: []*Filter{
 					{
@@ -478,7 +546,9 @@ func TestFilter_AddFilter(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorNotLike,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},
@@ -516,7 +586,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorEqual,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -525,7 +597,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},
@@ -537,7 +611,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorNotEqual,
-				Value:    true,
+				Value: &FilterValue{
+					Value: true,
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -546,7 +622,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorNotEqual,
-						Value:    true,
+						Value: &FilterValue{
+							Value: true,
+						},
 					},
 				},
 			},
@@ -558,7 +636,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorGreaterThan,
-				Value:    int64(100),
+				Value: &FilterValue{
+					Value: int64(100),
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -567,7 +647,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorGreaterThan,
-						Value:    int64(100),
+						Value: &FilterValue{
+							Value: int64(100),
+						},
 					},
 				},
 			},
@@ -579,7 +661,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorGreaterThanOrEqual,
-				Value:    float64(100),
+				Value: &FilterValue{
+					Value: float64(100),
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -588,7 +672,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorGreaterThanOrEqual,
-						Value:    float64(100),
+						Value: &FilterValue{
+							Value: float64(100),
+						},
 					},
 				},
 			},
@@ -600,7 +686,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorLessThan,
-				Value:    uint64(100),
+				Value: &FilterValue{
+					Value: uint64(100),
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -609,7 +697,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorLessThan,
-						Value:    uint64(100),
+						Value: &FilterValue{
+							Value: uint64(100),
+						},
 					},
 				},
 			},
@@ -621,7 +711,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorLessThanOrEqual,
-				Value:    "2006-01-02T15:04:05+07:00",
+				Value: &FilterValue{
+					Value: "2006-01-02T15:04:05+07:00",
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -630,7 +722,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorLessThanOrEqual,
-						Value:    "2006-01-02T15:04:05+07:00",
+						Value: &FilterValue{
+							Value: "2006-01-02T15:04:05+07:00",
+						},
 					},
 				},
 			},
@@ -642,7 +736,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorIsNull,
-				Value:    nil,
+				Value: &FilterValue{
+					Value: nil,
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -651,7 +747,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorIsNull,
-						Value:    nil,
+						Value: &FilterValue{
+							Value: nil,
+						},
 					},
 				},
 			},
@@ -663,7 +761,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorIsNotNull,
-				Value:    nil,
+				Value: &FilterValue{
+					Value: nil,
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -672,7 +772,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorIsNotNull,
-						Value:    nil,
+						Value: &FilterValue{
+							Value: nil,
+						},
 					},
 				},
 			},
@@ -684,7 +786,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorIn,
-				Value:    []string{"value1", "value 2", "value3"},
+				Value: &FilterValue{
+					Value: []string{"value1", "value 2", "value3"},
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -693,7 +797,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorIn,
-						Value:    []string{"value1", "value 2", "value3"},
+						Value: &FilterValue{
+							Value: []string{"value1", "value 2", "value3"},
+						},
 					},
 				},
 			},
@@ -705,7 +811,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorNotIn,
-				Value:    [3]int64{1, 2, 3},
+				Value: &FilterValue{
+					Value: [3]int64{1, 2, 3},
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -714,7 +822,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorNotIn,
-						Value:    [3]int64{1, 2, 3},
+						Value: &FilterValue{
+							Value: [3]int64{1, 2, 3},
+						},
 					},
 				},
 			},
@@ -726,7 +836,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorLike,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -735,7 +847,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorLike,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},
@@ -747,7 +861,9 @@ func TestFilter_AddFilters(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorNotLike,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Expectation: &Filter{
 				Filters: []*Filter{
@@ -756,7 +872,9 @@ func TestFilter_AddFilters(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorNotLike,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},
@@ -814,7 +932,9 @@ func TestFilter_validate(t *testing.T) {
 			Dialect: DialectPostgres,
 			Filter: &Filter{
 				Logic: LogicAnd,
-				Value: "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Expectation: ErrValueIsNotNil,
 		},
@@ -837,7 +957,9 @@ func TestFilter_validate(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},
@@ -848,7 +970,9 @@ func TestFilter_validate(t *testing.T) {
 			Dialect: DialectPostgres,
 			Filter: &Filter{
 				Operator: OperatorEqual,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Expectation: ErrFieldIsRequired,
 		},
@@ -859,7 +983,9 @@ func TestFilter_validate(t *testing.T) {
 				Field: &Field{
 					Column: "field1",
 				},
-				Value: "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Expectation: ErrOperatorIsRequired,
 		},
@@ -883,7 +1009,9 @@ func TestFilter_validate(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorIsNull,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Expectation: ErrValueIsNotNil,
 		},
@@ -895,7 +1023,9 @@ func TestFilter_validate(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorEqual,
-				Value:    []int64{1, 2, 3},
+				Value: &FilterValue{
+					Value: []int64{1, 2, 3},
+				},
 			},
 			Expectation: fmt.Errorf(errUnsupportedValueTypeForOperatorf, reflect.Slice.String(), OperatorEqual),
 		},
@@ -907,7 +1037,9 @@ func TestFilter_validate(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorIn,
-				Value:    int64(123),
+				Value: &FilterValue{
+					Value: int64(123),
+				},
 			},
 			Expectation: fmt.Errorf(errUnsupportedValueTypeForOperatorf, reflect.Int64.String(), OperatorIn),
 		},
@@ -919,7 +1051,9 @@ func TestFilter_validate(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorIn,
-				Value:    []int64{},
+				Value: &FilterValue{
+					Value: []int64{},
+				},
 			},
 			Expectation: ErrValueIsRequired,
 		},
@@ -934,14 +1068,18 @@ func TestFilter_validate(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    int64(123),
+						Value: &FilterValue{
+							Value: int64(123),
+						},
 					},
 					{
 						Field: &Field{
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},
@@ -958,14 +1096,18 @@ func TestFilter_validate(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    int64(123),
+						Value: &FilterValue{
+							Value: int64(123),
+						},
 					},
 					{
 						Field: &Field{
 							Column: "field2",
 						},
 						Operator: OperatorEqual,
-						Value:    []string{"a", "b", "c"},
+						Value: &FilterValue{
+							Value: []string{"a", "b", "c"},
+						},
 					},
 				},
 			},
@@ -1021,7 +1163,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			Filter: &Filter{
 				Field:    &Field{},
 				Operator: OperatorEqual,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Dialect: DialectPostgres,
 			Args:    []interface{}{},
@@ -1045,7 +1189,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorEqual,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Dialect: DialectMySQL,
 			Args:    []interface{}{},
@@ -1058,6 +1204,30 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Query: "field1 = ?",
 				Args:  []interface{}{"value1"},
 				Err:   nil,
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with filter operator %s and filter value to sql with args is error", DialectMySQL, OperatorEqual),
+			Filter: &Filter{
+				Field: &Field{
+					Column: "field1",
+				},
+				Operator: OperatorEqual,
+				Value: &FilterValue{
+					SelectQuery: &SelectQuery{},
+				},
+			},
+			Dialect: DialectMySQL,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Err   error
+			}{
+				Query: "",
+				Args:  nil,
+				Err:   ErrFieldsIsRequired,
 			},
 		},
 		{
@@ -1089,7 +1259,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorIn,
-				Value:    []string{"value1", "value2", "value3"},
+				Value: &FilterValue{
+					Value: []string{"value1", "value2", "value3"},
+				},
 			},
 			Dialect: DialectMySQL,
 			Args:    []interface{}{},
@@ -1105,13 +1277,68 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			},
 		},
 		{
+			Name: fmt.Sprintf("dialect %s with filter operator %s and filter value select query is not nil and filter value to sql with args is error", DialectMySQL, OperatorIn),
+			Filter: &Filter{
+				Field: &Field{
+					Column: "field1",
+				},
+				Operator: OperatorIn,
+				Value: &FilterValue{
+					SelectQuery: &SelectQuery{},
+				},
+			},
+			Dialect: DialectMySQL,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Err   error
+			}{
+				Query: "",
+				Args:  nil,
+				Err:   ErrFieldsIsRequired,
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with filter operator %s and filter value select query is not nil", DialectMySQL, OperatorIn),
+			Filter: &Filter{
+				Field: &Field{
+					Column: "field1",
+				},
+				Operator: OperatorIn,
+				Value: &FilterValue{
+					SelectQuery: Select(NewField("field1")).
+						From(NewTable("table1")).Where(
+						NewFilter().
+							SetLogic(LogicAnd).
+							AddFilter(NewField("field1"), OperatorEqual, NewFilterValue("value1")),
+					),
+				},
+			},
+			Dialect: DialectMySQL,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Err   error
+			}{
+				Query: "field1 in (select field1 from table1 where field1 = ?)",
+				Args:  []interface{}{"value1"},
+				Err:   nil,
+			},
+		},
+		{
 			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectMySQL, OperatorLike),
 			Filter: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorLike,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Dialect: DialectMySQL,
 			Args:    []interface{}{},
@@ -1124,6 +1351,30 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Query: "field1 like concat('%', ?, '%')",
 				Args:  []interface{}{"value1"},
 				Err:   nil,
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with filter operator %s and filter value to sql with args is error", DialectMySQL, OperatorLike),
+			Filter: &Filter{
+				Field: &Field{
+					Column: "field1",
+				},
+				Operator: OperatorLike,
+				Value: &FilterValue{
+					SelectQuery: &SelectQuery{},
+				},
+			},
+			Dialect: DialectMySQL,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Err   error
+			}{
+				Query: "",
+				Args:  nil,
+				Err:   ErrFieldsIsRequired,
 			},
 		},
 		{
@@ -1152,7 +1403,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 					{
 						Logic: LogicOr,
@@ -1169,7 +1422,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 									Column: "field3",
 								},
 								Operator: OperatorIn,
-								Value:    []int64{1, 2, 3},
+								Value: &FilterValue{
+									Value: []int64{1, 2, 3},
+								},
 							},
 						},
 					},
@@ -1178,7 +1433,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 							Column: "field4",
 						},
 						Operator: OperatorLike,
-						Value:    "value4",
+						Value: &FilterValue{
+							Value: "value4",
+						},
 					},
 				},
 			},
@@ -1251,7 +1508,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorIn,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},
@@ -1278,7 +1537,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 					{
 						Logic: LogicOr,
@@ -1295,7 +1556,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 									Column: "field3",
 								},
 								Operator: OperatorIn,
-								Value:    []int64{1, 2, 3},
+								Value: &FilterValue{
+									Value: []int64{1, 2, 3},
+								},
 							},
 						},
 					},
@@ -1304,7 +1567,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 							Column: "field4",
 						},
 						Operator: OperatorLike,
-						Value:    "value4",
+						Value: &FilterValue{
+							Value: "value4",
+						},
 					},
 				},
 			},
@@ -1330,7 +1595,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorEqual,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Dialect: DialectPostgres,
 			Args:    []interface{}{},
@@ -1343,6 +1610,30 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 				Query: "field1 = $1",
 				Args:  []interface{}{"value1"},
 				Err:   nil,
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with filter operator %s and filter value to sql with args is error", DialectPostgres, OperatorEqual),
+			Filter: &Filter{
+				Field: &Field{
+					Column: "field1",
+				},
+				Operator: OperatorEqual,
+				Value: &FilterValue{
+					SelectQuery: &SelectQuery{},
+				},
+			},
+			Dialect: DialectPostgres,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Err   error
+			}{
+				Query: "",
+				Args:  nil,
+				Err:   ErrFieldsIsRequired,
 			},
 		},
 		{
@@ -1374,7 +1665,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 					Column: "field1",
 				},
 				Operator: OperatorIn,
-				Value:    []string{"value1", "value2", "value3"},
+				Value: &FilterValue{
+					Value: []string{"value1", "value2", "value3"},
+				},
 			},
 			Dialect: DialectPostgres,
 			Args:    []interface{}{},
@@ -1390,13 +1683,68 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			},
 		},
 		{
+			Name: fmt.Sprintf("dialect %s with filter operator %s and filter value select query is not nil and filter value to sql with args is error", DialectPostgres, OperatorIn),
+			Filter: &Filter{
+				Field: &Field{
+					Column: "field1",
+				},
+				Operator: OperatorIn,
+				Value: &FilterValue{
+					SelectQuery: &SelectQuery{},
+				},
+			},
+			Dialect: DialectPostgres,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Err   error
+			}{
+				Query: "",
+				Args:  nil,
+				Err:   ErrFieldsIsRequired,
+			},
+		},
+		{
+			Name: fmt.Sprintf("dialect %s with filter operator %s and filter value select query is not nil", DialectPostgres, OperatorIn),
+			Filter: &Filter{
+				Field: &Field{
+					Column: "field1",
+				},
+				Operator: OperatorIn,
+				Value: &FilterValue{
+					SelectQuery: Select(NewField("field1")).
+						From(NewTable("table1")).Where(
+						NewFilter().
+							SetLogic(LogicAnd).
+							AddFilter(NewField("field1"), OperatorEqual, NewFilterValue("value1")),
+					),
+				},
+			},
+			Dialect: DialectPostgres,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Err   error
+			}{
+				Query: "field1 in (select field1 from table1 where field1 = $1)",
+				Args:  []interface{}{"value1"},
+				Err:   nil,
+			},
+		},
+		{
 			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorLike),
 			Filter: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorLike,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Dialect: DialectPostgres,
 			Args:    []interface{}{},
@@ -1412,13 +1760,39 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 			},
 		},
 		{
+			Name: fmt.Sprintf("dialect %s with filter operator %s and filter value to sql with args is error", DialectPostgres, OperatorLike),
+			Filter: &Filter{
+				Field: &Field{
+					Column: "field1",
+				},
+				Operator: OperatorLike,
+				Value: &FilterValue{
+					SelectQuery: &SelectQuery{},
+				},
+			},
+			Dialect: DialectPostgres,
+			Args:    []interface{}{},
+			IsRoot:  false,
+			Expectation: struct {
+				Query string
+				Args  []interface{}
+				Err   error
+			}{
+				Query: "",
+				Args:  nil,
+				Err:   ErrFieldsIsRequired,
+			},
+		},
+		{
 			Name: fmt.Sprintf("dialect %s with filter operator %s", DialectPostgres, OperatorNotLike),
 			Filter: &Filter{
 				Field: &Field{
 					Column: "field1",
 				},
 				Operator: OperatorNotLike,
-				Value:    "value1",
+				Value: &FilterValue{
+					Value: "value1",
+				},
 			},
 			Dialect: DialectPostgres,
 			Args:    []interface{}{},
@@ -1459,7 +1833,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 					{
 						Logic: LogicOr,
@@ -1476,7 +1852,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 									Column: "field3",
 								},
 								Operator: OperatorIn,
-								Value:    []int64{1, 2, 3},
+								Value: &FilterValue{
+									Value: []int64{1, 2, 3},
+								},
 							},
 						},
 					},
@@ -1485,7 +1863,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 							Column: "field4",
 						},
 						Operator: OperatorLike,
-						Value:    "value4",
+						Value: &FilterValue{
+							Value: "value4",
+						},
 					},
 				},
 			},
@@ -1558,7 +1938,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorIn,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},
@@ -1585,7 +1967,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 					{
 						Logic: LogicOr,
@@ -1602,7 +1986,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 									Column: "field3",
 								},
 								Operator: OperatorIn,
-								Value:    []int64{1, 2, 3},
+								Value: &FilterValue{
+									Value: []int64{1, 2, 3},
+								},
 							},
 						},
 					},
@@ -1611,7 +1997,9 @@ func TestFilter_toSQLWithArgs(t *testing.T) {
 							Column: "field4",
 						},
 						Operator: OperatorLike,
-						Value:    "value4",
+						Value: &FilterValue{
+							Value: "value4",
+						},
 					},
 				},
 			},
@@ -1703,7 +2091,9 @@ func TestFilter_ToSQLWithArgs(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    []string{"a", "b", "c"},
+						Value: &FilterValue{
+							Value: []string{"a", "b", "c"},
+						},
 					},
 				},
 			},
@@ -1729,7 +2119,9 @@ func TestFilter_ToSQLWithArgs(t *testing.T) {
 							Column: "field1",
 						},
 						Operator: OperatorEqual,
-						Value:    "value1",
+						Value: &FilterValue{
+							Value: "value1",
+						},
 					},
 				},
 			},

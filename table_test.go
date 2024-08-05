@@ -3,6 +3,18 @@ package simple_query
 import "testing"
 
 func testTable_TableEquality(t *testing.T, expectation, actual *Table) {
+	if expectation == nil && actual == nil {
+		t.Skip("expectation and actual is nil")
+	}
+
+	if expectation == nil && actual != nil {
+		t.Errorf("expectation is nil, got %+v", actual)
+	}
+
+	if expectation != nil && actual == nil {
+		t.Errorf("expectation is %+v, got nil", expectation)
+	}
+
 	if expectation.Name != actual.Name {
 		t.Errorf("expectation table name is %s, got %s", expectation.Name, actual.Name)
 	}

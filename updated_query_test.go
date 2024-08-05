@@ -5,6 +5,40 @@ import (
 	"testing"
 )
 
+func testUpdateQuery_UpdateQueryEquality(t *testing.T, expectation, actual *UpdateQuery) {
+	if expectation == nil && actual == nil {
+		t.Skip("expectation and actual is nil")
+	}
+
+	if expectation == nil && actual != nil {
+		t.Errorf("expectation is nil, got %+v", actual)
+	}
+
+	if expectation != nil && actual == nil {
+		t.Errorf("expectation is %+v, got nil", expectation)
+	}
+
+	if expectation.Table != actual.Table {
+		t.Errorf("expected table is %s, got %s", expectation.Table, actual.Table)
+	}
+
+	if len(expectation.FieldsValue) != len(actual.FieldsValue) {
+		t.Errorf("expected length of fields value is %d, got %d", len(expectation.FieldsValue), len(actual.FieldsValue))
+	}
+
+	if len(expectation.FieldsValue) > 0 {
+		for field, value := range expectation.FieldsValue {
+			if !deepEqual(value, actual.FieldsValue[field]) {
+				t.Errorf("expected value is %v, got %v", value, actual.FieldsValue[field])
+			}
+		}
+	}
+
+	if !deepEqual(expectation.Filter, actual.Filter) {
+		t.Errorf("expectation filter is %v, got %v", expectation.Filter, actual.Filter)
+	}
+}
+
 func TestUpdateQuery_Update(t *testing.T) {
 	var (
 		expectation *UpdateQuery
@@ -17,13 +51,7 @@ func TestUpdateQuery_Update(t *testing.T) {
 	}
 	actual = Update("table1")
 
-	if expectation.Table != actual.Table {
-		t.Errorf("expected table is %s, got %s", expectation.Table, actual.Table)
-	}
-
-	if len(expectation.FieldsValue) != len(actual.FieldsValue) {
-		t.Errorf("expected length of fields value is %d, got %d", len(expectation.FieldsValue), len(actual.FieldsValue))
-	}
+	testUpdateQuery_UpdateQueryEquality(t, expectation, actual)
 }
 
 func TestUpdateQuery_Set(t *testing.T) {
@@ -44,21 +72,7 @@ func TestUpdateQuery_Set(t *testing.T) {
 		Set("field1", "value1").
 		Set("field2", 2)
 
-	if expectation.Table != actual.Table {
-		t.Errorf("expected table is %s, got %s", expectation.Table, actual.Table)
-	}
-
-	if len(expectation.FieldsValue) != len(actual.FieldsValue) {
-		t.Errorf("expected length of fields value is %d, got %d", len(expectation.FieldsValue), len(actual.FieldsValue))
-	}
-
-	if len(expectation.FieldsValue) > 0 {
-		for field, value := range expectation.FieldsValue {
-			if !deepEqual(value, actual.FieldsValue[field]) {
-				t.Errorf("expected value is %v, got %v", value, actual.FieldsValue[field])
-			}
-		}
-	}
+	testUpdateQuery_UpdateQueryEquality(t, expectation, actual)
 }
 
 func TestUpdateQuery_Where(t *testing.T) {
@@ -81,7 +95,9 @@ func TestUpdateQuery_Where(t *testing.T) {
 						Column: "field1",
 					},
 					Operator: OperatorEqual,
-					Value:    "value1",
+					Value: &FilterValue{
+						Value: "value1",
+					},
 				},
 			},
 		},
@@ -93,28 +109,10 @@ func TestUpdateQuery_Where(t *testing.T) {
 		Where(
 			NewFilter().
 				SetLogic(LogicAnd).
-				AddFilter(NewField("field1"), OperatorEqual, "value1"),
+				AddFilter(NewField("field1"), OperatorEqual, NewFilterValue("value1")),
 		)
 
-	if expectation.Table != actual.Table {
-		t.Errorf("expected table is %s, got %s", expectation.Table, actual.Table)
-	}
-
-	if len(expectation.FieldsValue) != len(actual.FieldsValue) {
-		t.Errorf("expected length of fields value is %d, got %d", len(expectation.FieldsValue), len(actual.FieldsValue))
-	}
-
-	if len(expectation.FieldsValue) > 0 {
-		for field, value := range expectation.FieldsValue {
-			if !deepEqual(value, actual.FieldsValue[field]) {
-				t.Errorf("expected value is %v, got %v", value, actual.FieldsValue[field])
-			}
-		}
-	}
-
-	if !deepEqual(expectation.Filter, actual.Filter) {
-		t.Errorf("expectation filter is %v, got %v", expectation.Filter, actual.Filter)
-	}
+	testUpdateQuery_UpdateQueryEquality(t, expectation, actual)
 }
 
 func TestUpdateQuery_validate(t *testing.T) {
@@ -186,7 +184,7 @@ func TestUpdateQuery_validate(t *testing.T) {
 						{
 							Field:    NewField("field1"),
 							Operator: OperatorEqual,
-							Value:    "value1",
+							Value:    NewFilterValue("value1"),
 						},
 					},
 				},
@@ -222,7 +220,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 		Expectation struct {
 			Query string
 			Args  []interface{}
-			Error error
+			Err   error
 		}
 	} = []struct {
 		Name        string
@@ -231,7 +229,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 		Expectation struct {
 			Query string
 			Args  []interface{}
-			Error error
+			Err   error
 		}
 	}{
 		{
@@ -241,11 +239,11 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "",
 				Args:  nil,
-				Error: ErrTableIsRequired,
+				Err:   ErrTableIsRequired,
 			},
 		},
 
@@ -265,11 +263,11 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "",
 				Args:  nil,
-				Error: ErrFiltersIsRequired,
+				Err:   ErrFiltersIsRequired,
 			},
 		},
 		{
@@ -285,7 +283,7 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 						{
 							Field:    NewField("field2"),
 							Operator: OperatorEqual,
-							Value:    "value2",
+							Value:    NewFilterValue("value2"),
 						},
 					},
 				},
@@ -294,11 +292,11 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 			Expectation: struct {
 				Query string
 				Args  []interface{}
-				Error error
+				Err   error
 			}{
 				Query: "update table1 set field1 = $1 where field2 = $2",
 				Args:  []interface{}{"value1", "value2"},
-				Error: nil,
+				Err:   nil,
 			},
 		},
 	}
@@ -313,16 +311,16 @@ func TestUpdateQuery_ToSQLWithArgs(t *testing.T) {
 
 			actualQuery, actualArgs, actualErr = testCases[i].UpdateQuery.ToSQLWithArgs(testCases[i].Dialect)
 
-			if testCases[i].Expectation.Error != nil && actualErr == nil {
+			if testCases[i].Expectation.Err != nil && actualErr == nil {
 				t.Error("expectation error is not nil, got nil")
 			}
 
-			if testCases[i].Expectation.Error == nil && actualErr != nil {
+			if testCases[i].Expectation.Err == nil && actualErr != nil {
 				t.Error("expectation error is nil, got not nil")
 			}
 
-			if testCases[i].Expectation.Error != nil && actualErr != nil && testCases[i].Expectation.Error.Error() != actualErr.Error() {
-				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Error.Error(), actualErr.Error())
+			if testCases[i].Expectation.Err != nil && actualErr != nil && testCases[i].Expectation.Err.Error() != actualErr.Error() {
+				t.Errorf("expectation error is %s, got %s", testCases[i].Expectation.Err.Error(), actualErr.Error())
 			}
 
 			if testCases[i].Expectation.Query != actualQuery {
